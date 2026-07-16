@@ -1,0 +1,605 @@
+<title>family-assistant — by example</title>
+<style>
+  :root {
+    --paper:#F4F2EE; --surface:#FFFFFF; --ink:#20272E; --muted:#5D6B78; --line:#D8D2C7;
+    --accent:#2F6B8A; --accent-bg:#E7F0F5; --data:#4A5A8A; --data-bg:#E9ECF7;
+    --ext:#3E7A55; --ext-bg:#E4F1E8; --warn:#A64A3C; --warn-bg:#F7E7E3; --edge:#96A0AC;
+    --shadow:0 1px 2px rgba(28,37,48,.06), 0 6px 20px rgba(28,37,48,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper:#161A1E; --surface:#1E252C; --ink:#E9EDF1; --muted:#9AA6B2; --line:#313A44;
+      --accent:#6FB0CE; --accent-bg:#17303C; --data:#9AA8D8; --data-bg:#1E2340;
+      --ext:#74BB8E; --ext-bg:#16301F; --warn:#E0897A; --warn-bg:#38221D; --edge:#5A6672;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25); }
+  }
+  :root[data-theme="dark"]{ --paper:#161A1E; --surface:#1E252C; --ink:#E9EDF1; --muted:#9AA6B2; --line:#313A44;
+    --accent:#6FB0CE; --accent-bg:#17303C; --data:#9AA8D8; --data-bg:#1E2340; --ext:#74BB8E; --ext-bg:#16301F;
+    --warn:#E0897A; --warn-bg:#38221D; --edge:#5A6672; --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25); }
+  :root[data-theme="light"]{ --paper:#F4F2EE; --surface:#FFFFFF; --ink:#20272E; --muted:#5D6B78; --line:#D8D2C7;
+    --accent:#2F6B8A; --accent-bg:#E7F0F5; --data:#4A5A8A; --data-bg:#E9ECF7; --ext:#3E7A55; --ext-bg:#E4F1E8;
+    --warn:#A64A3C; --warn-bg:#F7E7E3; --edge:#96A0AC; --shadow:0 1px 2px rgba(28,37,48,.06), 0 6px 20px rgba(28,37,48,.06); }
+
+  body { background:var(--paper); color:var(--ink); margin:0;
+    font-family:"Avenir Next","Avenir","Helvetica Neue","Segoe UI",system-ui,sans-serif; font-size:16px; line-height:1.6; }
+  .wrap { max-width:1120px; margin:0 auto; padding:24px 26px 64px; }
+  h1 { font-family:"Charter","Iowan Old Style",Georgia,serif; font-size:27px; margin:0; text-wrap:balance; }
+  .eyebrow { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .sub { color:var(--muted); font-size:15px; margin:6px 0 0; }
+  code, kbd { font-family:"SF Mono",ui-monospace,Menlo,monospace; }
+  code { font-size:.88em; background:var(--accent-bg); color:var(--accent); padding:1px 6px; border-radius:5px; }
+  kbd { font-size:.82em; border:1px solid var(--line); border-bottom-width:2px; border-radius:4px; padding:0 6px; background:var(--surface); }
+  .headrow { display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+  .headrow header { flex:1 1 300px; }
+  .headbtns { display:flex; gap:8px; flex-wrap:wrap; }
+
+  .toggle { font-family:inherit; font-size:14px; font-weight:600; color:var(--accent); background:var(--surface); border:1.5px solid var(--line); border-radius:8px; padding:9px 14px; cursor:pointer; white-space:nowrap; }
+  .toggle:hover { border-color:var(--accent); }
+  .toggle:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  /* only the control bar is sticky (standard, 2026-07-16) */
+  .ctrlbar { position:sticky; top:0; z-index:30; background:var(--paper); padding:12px 0 10px; border-bottom:1px solid var(--line); margin-top:14px; }
+  .controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .btn { font-family:inherit; font-size:15px; font-weight:600; color:var(--ink); background:var(--surface); border:1.5px solid var(--line); border-radius:8px; padding:9px 18px; cursor:pointer; }
+  .btn:hover { border-color:var(--accent); color:var(--accent); }
+  .btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .btn[disabled] { opacity:.35; cursor:default; }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.primary:hover { opacity:.92; color:#fff; }
+  .count { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .kbd-hint { color:var(--muted); font-size:12px; margin-left:auto; }
+  /* jump-to table of contents */
+  .toc { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+  .toc button { font-family:inherit; font-size:12.5px; font-weight:600; color:var(--muted); background:transparent; border:1px solid var(--line); border-radius:20px; padding:4px 11px; cursor:pointer; }
+  .toc button:hover { border-color:var(--accent); color:var(--accent); }
+  .toc button.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .toc button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  .card { margin-top:22px; }
+  .card .goal { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ext); margin:0 0 4px; }
+  .card h2 { font-family:"Charter","Iowan Old Style",Georgia,serif; font-size:23px; margin:0 0 14px; max-width:64ch; }
+  .card .lead { margin:0 0 12px; font-size:16.5px; color:var(--ink); max-width:66ch; }
+
+  .dialogue { margin:2px 0 14px; max-width:64ch; }
+  .turn { margin:9px 0; padding-left:70px; position:relative; font-size:15.5px; line-height:1.5; }
+  .turn .who { position:absolute; left:0; top:3px; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:10px; letter-spacing:.11em; text-transform:uppercase; }
+  .turn.you { color:var(--ink); }
+  .turn.you .who { color:var(--accent); }
+  .turn.it { color:var(--muted); }
+  .turn.it .who { color:var(--ext); }
+  .turn .hint { color:var(--muted); font-size:13px; }
+  .turn.it .txt { border-left:2px solid var(--line); padding-left:12px; margin-left:-12px; }
+
+  .get { margin:2px 0 6px; max-width:66ch; font-size:16px; color:var(--ink); background:var(--ext-bg); border-left:3px solid var(--ext); padding:9px 0 9px 14px; border-radius:0 8px 8px 0; }
+  .get b { color:var(--ext); }
+
+  /* obvious toggles */
+  details.wonder { margin:12px 0 0; max-width:66ch; }
+  details.wonder > summary { cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:9px;
+    background:var(--accent-bg); border:1.5px solid var(--accent); border-radius:9px; padding:9px 15px;
+    font-weight:700; font-size:14px; color:var(--accent); }
+  details.wonder > summary::-webkit-details-marker { display:none; }
+  details.wonder > summary::before { content:"＋"; font-size:15px; line-height:1; }
+  details.wonder[open] > summary::before { content:"–"; }
+  details.wonder > summary:hover { background:var(--accent); color:#fff; }
+  details.wonder[open] > summary { border-radius:9px 9px 0 0; }
+  details.wonder .ans { border:1.5px solid var(--accent); border-top:none; border-radius:0 0 9px 9px; padding:11px 15px; font-size:14.5px; color:var(--muted); background:var(--surface); }
+  details.wonder .ans code { font-size:.9em; }
+
+  /* map — shared, highlightable */
+  #stage { margin-top:16px; }
+  details.mapwrap { max-width:none; border:1.5px solid var(--accent); border-radius:10px; background:var(--accent-bg); overflow:hidden; }
+  details.mapwrap > summary { cursor:pointer; padding:11px 16px; font-weight:700; font-size:14px; color:var(--accent); list-style:none; display:flex; align-items:center; gap:9px; }
+  details.mapwrap > summary::-webkit-details-marker { display:none; }
+  details.mapwrap > summary::before { content:"🗺"; }
+  details.mapwrap > summary .hint { color:var(--muted); font-weight:400; font-size:12.5px; }
+  details.mapwrap[open] > summary { border-bottom:1px solid var(--line); }
+  .scroller { overflow-x:auto; background:var(--surface); }
+  .arch { position:relative; width:1140px; margin:0 auto; }
+  .arch svg { position:absolute; inset:0; pointer-events:none; }
+  .node { position:absolute; box-sizing:border-box; border-radius:8px; padding:9px 12px; background:var(--surface); border:1.6px solid var(--edge); transition:opacity .25s ease; }
+  @media (prefers-reduced-motion: reduce){ .node{ transition:none; } }
+  .node.dim { opacity:.12; }
+  .node h4 { margin:0 0 3px; font-size:15px; font-weight:700; line-height:1.25; }
+  .node p { margin:0; font-size:12px; line-height:1.42; color:var(--muted); }
+  .node.mono h4 { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:13px; }
+  .n-cc { background:var(--accent-bg); border-color:var(--accent); }
+  .n-cc h4 { color:var(--accent); }
+  .n-skill h4 { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:12.5px; color:var(--ink); }
+  .n-folder { background:var(--data-bg); border-color:var(--data); border-left-width:4px; }
+  .n-folder h4 { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:12.5px; color:var(--data); }
+  .n-ext { background:var(--ext-bg); border-color:var(--ext); border-style:dashed; }
+  .n-ext h4 { font-size:13px; color:var(--ext); }
+  .zone { position:absolute; border:1.4px solid var(--line); border-radius:12px; background:color-mix(in srgb, var(--surface) 60%, transparent); }
+  .zone > .zlabel { position:absolute; top:-10px; left:16px; background:var(--surface); padding:0 10px; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+
+  /* off-path pages */
+  .panelhead { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:16px; }
+  .panelhead h2 { font-family:"Charter","Iowan Old Style",Georgia,serif; font-size:20px; margin:0; }
+  .cmdtable { width:100%; border-collapse:collapse; margin-top:8px; font-size:14.5px; }
+  .cmdtable caption { text-align:left; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); padding:16px 0 4px; }
+  .cmdtable td { border-top:1px solid var(--line); padding:8px 12px 8px 0; vertical-align:top; }
+  .cmdtable td.c { white-space:nowrap; width:1%; }
+  .cmdtable td.o { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11.5px; color:var(--muted); white-space:nowrap; }
+  @media (max-width:720px){ .cmdtable td.o{ display:none; } }
+
+  #why { max-width:112ch; }
+  .why-intro { font-size:16.5px; color:var(--ink); max-width:74ch; margin:8px 0 18px; }
+  .tierhead { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:22px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line); }
+  .feats { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+  .feat { border:1px solid var(--line); border-radius:10px; background:var(--surface); padding:14px 16px; box-shadow:var(--shadow); }
+  .feat h4 { margin:0 0 5px; font-size:16px; }
+  .feat p { margin:0; font-size:14.5px; color:var(--muted); line-height:1.5; }
+  .feat p b { color:var(--ink); }
+  .badge { display:inline-block; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; padding:2px 7px; border-radius:20px; vertical-align:2px; margin-left:6px; }
+  .badge.live { background:var(--ext-bg); color:var(--ext); border:1px solid var(--ext); }
+  .badge.soon { background:var(--accent-bg); color:var(--accent); border:1px solid var(--accent); }
+  .why-kicker { margin-top:22px; font-size:16.5px; color:var(--ink); max-width:74ch; border-left:3px solid var(--ext); background:var(--ext-bg); padding:12px 0 12px 16px; border-radius:0 8px 8px 0; }
+  .vs { font-size:14.5px; color:var(--muted); max-width:74ch; margin:16px 0 0; }
+
+  /* cheat page */
+  #cheat { max-width:900px; }
+  h3.sec { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); margin:26px 0 8px; padding-bottom:7px; border-bottom:1px solid var(--line); }
+  .crow { display:grid; grid-template-columns:150px 1fr; gap:16px; padding:14px 0; border-top:1px solid var(--line); }
+  .crow:first-of-type { border-top:none; }
+  .crow .lbl { font-weight:700; font-size:15.5px; }
+  .crow .lbl .n { font-family:"SF Mono",ui-monospace,Menlo,monospace; color:var(--accent); margin-right:7px; }
+  .crow .b { font-size:15px; }
+  .crow .b p { margin:0 0 6px; }
+  .crow .b p.m { color:var(--muted); font-size:14px; }
+  .crow .b b { color:var(--ink); }
+  @media (max-width:640px){ .crow { grid-template-columns:1fr; gap:5px; } }
+  table.mt { width:100%; border-collapse:collapse; font-size:14.5px; margin-top:4px; }
+  table.mt td { border-top:1px solid var(--line); padding:6px 10px 6px 0; vertical-align:top; }
+  table.mt td.k { white-space:nowrap; font-weight:700; width:1%; }
+  table.mt tr:first-child td { border-top:none; }
+  details.d { margin:8px 0 0; border:1.5px solid var(--accent); border-radius:8px; overflow:hidden; }
+  details.d > summary { cursor:pointer; padding:7px 13px; font-weight:700; font-size:12.5px; color:var(--accent); background:var(--accent-bg); list-style:none; display:flex; align-items:center; gap:7px; }
+  details.d > summary::-webkit-details-marker { display:none; }
+  details.d > summary::before { content:"＋"; }
+  details.d[open] > summary::before { content:"–"; }
+  details.d .in { padding:9px 13px; font-size:14px; color:var(--muted); background:var(--surface); }
+  details.d .in code { font-size:.9em; }
+  .tag { display:inline-block; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:20px; margin-left:8px; vertical-align:2px; border:1px solid var(--edge); color:var(--muted); }
+  .tag.adv { border-color:var(--accent); color:var(--accent); }
+  .callout { border-left:3px solid var(--warn); background:var(--warn-bg); border-radius:0 8px 8px 0; padding:9px 14px; font-size:14.5px; margin:8px 0 0; }
+
+  footer { margin-top:30px; color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+  a { color:var(--accent); }
+  .hidden { display:none !important; }
+  @media (max-width:720px){ body{font-size:16.5px;} .wrap{padding:18px 16px 60px;} h1{font-size:22px;} .turn{padding-left:0;} .turn .who{position:static; display:block; margin-bottom:2px;} }
+  @media print {
+    .ctrlbar, #stage, #why, #cheat, .toggle, .kbd-hint, footer .noprint { display:none !important; }
+    #reference { display:block !important; }
+    body { background:#fff; color:#000; font-size:11pt; }
+    a { color:#000; text-decoration:underline; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="headrow">
+    <header>
+      <div class="eyebrow">family-assistant · by example</div>
+      <h1>How to get things done</h1>
+      <p class="sub">Each screen: something you want to do, how you ask, and what you get. The command, the plumbing, and a map of what it touched are all optional — one click down. Jump to any part below.</p>
+    </header>
+    <div class="headbtns">
+      <button class="toggle" id="whyBtn" type="button">✦ Why this</button>
+      <button class="toggle" id="cheatBtn" type="button">⚙ Running it</button>
+      <button class="toggle" id="mapBtn" type="button">🗺 The map</button>
+      <button class="toggle" id="refBtn" type="button">📖 All commands</button>
+    </div>
+  </div>
+
+  <div id="guided">
+    <div class="ctrlbar">
+      <div class="controls">
+        <button class="btn" id="prevBtn" type="button">← Back</button>
+        <button class="btn primary" id="nextBtn" type="button">Next →</button>
+        <span class="count" id="count"></span>
+        <span class="kbd-hint"><kbd>←</kbd> <kbd>→</kbd> also work</span>
+      </div>
+      <div class="toc" id="toc"></div>
+    </div>
+
+    <div class="card" id="card" aria-live="polite"></div>
+
+    <div id="stage">
+      <details class="mapwrap" id="mapWrap">
+        <summary><span id="mapSummary">Where this happens on the map</span></summary>
+        <div class="scroller">
+          <div class="arch" style="height:600px;">
+            <svg viewBox="0 0 1140 600" width="1140" height="600" aria-hidden="true">
+              <defs>
+                <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0,0 L8,4 L0,8 z" fill="var(--edge)"/>
+                </marker>
+              </defs>
+              <path d="M174,74 L174,96" stroke="var(--edge)" stroke-width="2.2" fill="none" marker-end="url(#arr)"/>
+              <path d="M324,300 L356,300" stroke="var(--edge)" stroke-width="2.2" fill="none" marker-end="url(#arr)"/>
+              <path d="M740,150 L818,155" stroke="var(--edge)" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#arr)" marker-start="url(#arr)"/>
+            </svg>
+            <div class="node n-cc mono" data-g="cc" style="left:24px; top:20px; width:300px; height:54px;">
+              <h4>⌘ claude — in ~/family-assistant</h4>
+              <p style="font-family:'Avenir Next',sans-serif;">the assistant · reads &amp; writes the files below</p>
+            </div>
+            <div class="zone" style="left:24px; top:96px; width:300px; height:486px;"><span class="zlabel">commands</span></div>
+            <div class="node n-skill" data-g="s-session" style="left:44px; top:130px; width:260px; height:46px;"><h4>/daily-open · /session-end</h4></div>
+            <div class="node n-skill" data-g="s-capture" style="left:44px; top:188px; width:260px; height:46px;"><h4>/capture · /triage · /park</h4></div>
+            <div class="node n-skill" data-g="s-proj" style="left:44px; top:246px; width:260px; height:46px;"><h4>/project-new · /overview · /recap</h4></div>
+            <div class="node n-skill" data-g="s-ent" style="left:44px; top:304px; width:260px; height:46px;"><h4>/entity-add · /meeting</h4></div>
+            <div class="node n-skill" data-g="s-nb" style="left:44px; top:362px; width:260px; height:46px;"><h4>/notebooklm</h4></div>
+            <div class="node n-skill" data-g="s-meta" style="left:44px; top:420px; width:260px; height:64px;"><h4>/log-qa · /vault-maintenance · /incident · /stream</h4></div>
+            <div class="zone" style="left:356px; top:96px; width:384px; height:486px;"><span class="zlabel">your files · git repo of markdown</span></div>
+            <div class="node n-folder" data-g="journal" style="left:374px; top:126px; width:348px; height:44px;"><h4>04_journal/</h4><p>daily notes</p></div>
+            <div class="node n-folder" data-g="now" style="left:374px; top:180px; width:348px; height:44px;"><h4>meta/NOW.md</h4><p>priorities · reminders</p></div>
+            <div class="node n-folder" data-g="slog" style="left:374px; top:234px; width:348px; height:44px;"><h4>meta/SESSION_LOG.md</h4><p>the log (flight recorder)</p></div>
+            <div class="node n-folder" data-g="inbox" style="left:374px; top:288px; width:348px; height:44px;"><h4>01_inbox/</h4><p>raw items · parked notes</p></div>
+            <div class="node n-folder" data-g="clip" style="left:374px; top:342px; width:348px; height:44px;"><h4>02_clippings/</h4><p>links · research</p></div>
+            <div class="node n-folder" data-g="proj" style="left:374px; top:396px; width:348px; height:44px;"><h4>03_projects/&lt;slug&gt;/</h4><p>one folder per project</p></div>
+            <div class="node n-folder" data-g="ent" style="left:374px; top:450px; width:348px; height:44px;"><h4>05_entities/</h4><p>people</p></div>
+            <div class="node n-folder" data-g="logs" style="left:374px; top:504px; width:348px; height:44px;"><h4>06_logs/</h4><p>meetings · knowledge · incidents</p></div>
+            <div class="zone" style="left:772px; top:96px; width:344px; height:486px;"><span class="zlabel">the outside things it reaches</span></div>
+            <div class="node n-ext" data-g="x-nb" style="left:792px; top:130px; width:304px; height:58px;"><h4>NotebookLM</h4><p>Google · research &amp; summaries</p></div>
+            <div class="node n-ext" data-g="x-git" style="left:792px; top:204px; width:304px; height:54px;"><h4>git remote — GitHub</h4><p>backup on /session-end</p></div>
+            <div class="node n-ext" data-g="x-code" style="left:792px; top:274px; width:304px; height:58px;"><h4>~/code/&lt;slug&gt;/</h4><p>your actual code lives here</p></div>
+            <div class="node n-ext" data-g="x-obs" style="left:792px; top:348px; width:304px; height:46px;"><h4>Obsidian</h4><p>to read the notes</p></div>
+            <div class="node n-ext" data-g="x-hook" style="left:792px; top:410px; width:304px; height:46px;"><h4>auto-save</h4><p>background · ~every 15 min</p></div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- OFF-PATH: why this -->
+  <div id="why" class="hidden">
+    <div class="panelhead">
+      <h2>Why this, and not just ChatGPT or Claude out of the box</h2>
+      <button class="toggle backbtn" type="button">← Back</button>
+    </div>
+    <p class="why-intro">Claude Code on its own is a coding assistant. Perplexity and ChatGPT give good answers and then forget you the moment you close the tab. This is built to do the things those <em>can't</em> — because it has a memory, and it's yours.</p>
+
+    <div class="tierhead">What it does that a chatbot can't — working now</div>
+    <div class="feats">
+      <div class="feat"><h4>A memory that's actually yours <span class="badge live">live</span></h4><p>Everything it does is written to <b>your own files</b> — a second brain that <b>accumulates</b>. A chatbot's memory ends with the conversation; here, every note, decision, and person stays and compounds.</p></div>
+      <div class="feat"><h4>It knows you, and your history <span class="badge live">live</span></h4><p>It holds a picture of <b>you</b> and what you've been doing over weeks and months — so it can connect today to something from a month ago, chase a loose end you forgot, or remind you that you owe someone a reply.</p></div>
+      <div class="feat"><h4>A flight recorder of your work <span class="badge live">live</span></h4><p>Every session is logged with typed entries. The story of what you did and <b>why</b> is recoverable — so it can recall past research or spot a recurring problem, cold, weeks later.</p></div>
+      <div class="feat"><h4>Research you can trace <span class="badge live">live</span></h4><p>NotebookLM reads whole documents and hands back a <b>sourced</b> summary saved into your vault — not a black-box answer you can't check or keep.</p></div>
+      <div class="feat"><h4>A heavy-lifting sandbox <span class="badge live">live</span></h4><p>Context Mode crunches large outputs (logs, big files, data) off to the side and brings back only the answer — so big jobs don't clog the conversation.</p></div>
+      <div class="feat"><h4>Plain files, under git — you own it <span class="badge live">live</span></h4><p>Not trapped in a vendor's cloud. Everything is portable markdown, <b>versioned and private</b>, on your own machine. Leave any time, take it all with you.</p></div>
+      <div class="feat"><h4>Shaped to you, and editable <span class="badge live">live</span></h4><p>The commands and its picture of you are just text you can change. It's tuned to <b>how you work</b> — not a generic assistant everyone gets.</p></div>
+    </div>
+
+    <div class="tierhead">More sources it can plug into — Reut wires these in over time</div>
+    <div class="feats">
+      <div class="feat"><h4>Open web search <span class="badge soon">being set up</span></h4><p>A Perplexity call, wired right into your workspace — so "what's the latest on…" lives here too, instead of a separate app. Reut is setting this up.</p></div>
+      <div class="feat"><h4>Your Google Workspace <span class="badge soon">being set up</span></h4><p>Mail, calendar, and docs (<code>gws</code>) — so it can draft a reply, check your week, or pull a document into your notes. On a separate account.</p></div>
+    </div>
+
+    <p class="vs">And it's <strong>not</strong> better at everything — this stuff moves fast. For a quick, up-to-the-minute lookup (a live price, today's news, a flight fare) a browser or a dedicated search tool may beat it today. It earns its place on <strong>memory, depth, and keeping your work</strong> — and what it reaches keeps growing.</p>
+
+    <div class="why-kicker">The short version: a chatbot answers a question and forgets it. <strong>This one builds a working memory of your life and gets more useful the longer you use it.</strong></div>
+  </div>
+
+  <!-- OFF-PATH: running it (cheat sheet) -->
+  <div id="cheat" class="hidden">
+    <div class="panelhead">
+      <h2>Running Claude Code — the must-knows</h2>
+      <button class="toggle backbtn" type="button">← Back</button>
+    </div>
+    <p class="sub" style="max-width:74ch;">You don't need most of this to start. The top five are the must-knows; the rest is there for when you want it. You're on the <b>Pro</b> plan.</p>
+
+    <h3 class="sec">The five must-knows</h3>
+
+    <div class="crow"><div class="lbl"><span class="n">1</span>Start it</div><div class="b">
+      <p>Open a terminal in your <code>~/family-assistant</code> folder and type <code>claude</code>. That's it.</p>
+      <p class="m">First session ever: <code>/tour</code>. Every day after: <code>/daily-open</code>.</p></div></div>
+
+    <div class="crow"><div class="lbl"><span class="n">2</span>Pick the model</div><div class="b">
+      <p>Type <code>/model</code> to switch any time:</p>
+      <table class="mt">
+        <tr><td class="k">Sonnet 5</td><td>your <b>default</b> — fast, smart enough for ~95% of things. Start here.</td></tr>
+        <tr><td class="k">Opus 4.8</td><td>when Sonnet gets stuck, or for genuinely hard reasoning. Slower, uses your quota faster.</td></tr>
+        <tr><td class="k">Haiku 4.5</td><td>light and fast — quick edits, simple lookups. Easiest on quota.</td></tr>
+        <tr><td class="k">Fable 5</td><td>the flagship, for the very hardest long jobs. Rarely needed; burns quota fastest.</td></tr>
+      </table>
+      <details class="d"><summary>the trade-off, plainly</summary><div class="in">Smarter model = better on hard problems but slower and heavier on your limit (see #5). Stay on Sonnet; reach for Opus/Fable only when a problem needs it, then switch back.</div></details></div></div>
+
+    <div class="crow"><div class="lbl"><span class="n">3</span>Choose how careful</div><div class="b">
+      <p>Press <kbd>Shift</kbd>+<kbd>Tab</kbd> to cycle how much it asks before acting:</p>
+      <table class="mt">
+        <tr><td class="k">Normal</td><td>asks before changing files. Safe default.</td></tr>
+        <tr><td class="k">Auto-accept</td><td>stops asking, just makes the edits. Faster.</td></tr>
+        <tr><td class="k">Plan-first</td><td>lays out a plan and waits for your OK. Good for bigger tasks.</td></tr>
+      </table>
+      <details class="d"><summary>which to use</summary><div class="in">Start in <b>Normal</b>. Use <b>Plan-first</b> to see the approach before it runs; <b>Auto-accept</b> once you trust it. (A hands-off "auto" mode may also appear in the cycle.)</div></details></div></div>
+
+    <div class="crow"><div class="lbl"><span class="n">4</span>Watch the context</div><div class="b">
+      <p>Each session has a memory ("context"). When it fills, quality drops. Your <b>status line shows the model and context left</b> — Reut sets that up.</p>
+      <table class="mt">
+        <tr><td class="k"><code>/context</code></td><td>see how full it is now.</td></tr>
+        <tr><td class="k"><code>/compact</code></td><td>squeeze the history to keep going on the same topic.</td></tr>
+        <tr><td class="k"><code>/clear</code></td><td>wipe and start fresh — do this when you switch to an unrelated task.</td></tr>
+      </table>
+      <details class="d"><summary>when to bother</summary><div class="in">Mostly you don't — it auto-compacts around 80% full. The one good habit: <code>/clear</code> between unrelated tasks. Your notes are saved to files regardless, so clearing loses nothing important.</div></details></div></div>
+
+    <div class="crow"><div class="lbl"><span class="n">5</span>Mind the limits</div><div class="b">
+      <p>Pro gives you two usage windows: a rolling <b>5-hour</b> one and a <b>weekly</b> one. Type <code>/usage</code> to see where you stand.</p>
+      <p class="m">Heavier models eat the limit faster — <b>Opus ~1.7×</b>, <b>Fable ~3.3×</b> Sonnet's rate. Opus also has its own separate cap: hit "Opus limit" and Sonnet/Haiku still work.</p>
+      <div class="callout">If you run out: wait for the window to reset, or switch to a lighter model (<code>/model</code> → Sonnet or Haiku). Staying on Sonnet is the easiest way not to hit limits. (Max plans have bigger windows if you ever outgrow Pro.)</div></div></div>
+
+    <h3 class="sec">Continuing later — handovers</h3>
+    <div class="crow"><div class="lbl">Hand off &amp; resume</div><div class="b">
+      <p>Stopping mid-task, or the context is filling up? Don't push a tired session — have it write a <b>handover</b>: a short note of where things stand and what's next. A fresh session reads it and picks up cleanly.</p>
+      <table class="mt">
+        <tr><td class="k">Ask for one</td><td>"write a handover before we stop" → it saves the state + next steps to a note.</td></tr>
+        <tr><td class="k"><code>/park</code></td><td>a lighter version — stash one thread with enough context to resume.</td></tr>
+        <tr><td class="k">Next time</td><td>"read the handover and continue," or <code>/daily-open</code> then point it at the note.</td></tr>
+      </table>
+      <details class="d"><summary>when to hand off</summary><div class="in">Three moments: (1) you hit a natural stop with unfinished work; (2) <code>/context</code> is getting full — a fresh session + a handover beats a bloated one; (3) you want a different model for the next stretch. The handover is just a note in your vault, so it survives a <code>/clear</code> or a new day.</div></details></div></div>
+
+    <h3 class="sec">Handy to know — grow into these</h3>
+    <div class="crow"><div class="lbl">Ask, don't dig</div><div class="b"><p>Forget something? Ask in plain words: <code>what can you do?</code>, <code>how do I…?</code>. It answers. You never memorize commands.</p></div></div>
+    <div class="crow"><div class="lbl">Subagents <span class="tag">helpers</span></div><div class="b">
+      <p>For a big or side task, it can send off a <b>helper agent</b> that works separately and brings back just the answer — keeping your main chat clean.</p>
+      <details class="d"><summary>when it helps</summary><div class="in">"Go read all these files and summarize," or "look into X while we keep going." You don't set it up — just ask; it decides.</div></details></div></div>
+    <div class="crow"><div class="lbl">Workflows <span class="tag adv">advanced</span></div><div class="b">
+      <p>For a large job it can run <b>many agents at once</b> in a structured way, then pull the results together.</p>
+      <details class="d"><summary>the catch</summary><div class="in">Powerful but heavy on quota (many agents at once), so it's opt-in — ask for it when you have something genuinely big.</div></details></div></div>
+    <div class="crow"><div class="lbl">A few more</div><div class="b">
+      <table class="mt">
+        <tr><td class="k">Show a picture</td><td>paste/drop a screenshot or photo and ask about it — it can see images.</td></tr>
+        <tr><td class="k">Point at a file</td><td>type <code>@</code> and a filename to hand it a specific file.</td></tr>
+        <tr><td class="k"><code>/resume</code></td><td>reopen an earlier session and continue it.</td></tr>
+        <tr><td class="k">Undo / rewind</td><td>press <kbd>Esc</kbd> twice to jump back to an earlier point.</td></tr>
+        <tr><td class="k">Extra powers</td><td>"MCP" tools Reut wires in (research, web, calendar) appear automatically once set up.</td></tr>
+        <tr><td class="k">Edit its skills</td><td>the <code>/commands</code> are text files in <code>_utils/_skills/</code> — change one if you like.</td></tr>
+      </table></div></div>
+    <p class="sub" style="margin-top:14px;">Model names, limits, and modes here are current as of mid-2026 — they change; <code>/usage</code> and <code>/model</code> are always the live truth.</p>
+  </div>
+
+  <!-- OFF-PATH: reference -->
+  <div id="reference" class="hidden"></div>
+
+  <footer>
+    <p class="noprint">You never have to remember any of this — ask <code>what can you do?</code> any time. <b>📖 All commands</b> is the full list (also what prints). Built by Reut.</p>
+    <p>family-assistant · walkthrough</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var ALLG = ["cc","s-session","s-capture","s-proj","s-ent","s-nb","s-meta",
+              "journal","now","slog","inbox","clip","proj","ent","logs",
+              "x-nb","x-git","x-code","x-obs","x-hook"];
+
+  var steps = [
+    { arch: true, tab: "Map", title: "The shape — a look, then forget it",
+      groups: ALLG,
+      lead: "Here's the whole system once, so it's not a mystery: <strong>the commands</strong> (left) act on <strong>your files</strong> (middle) and reach a few <strong>outside things</strong> (right). <strong>You don't need to understand any of this to use it</strong> — hit Next and start; come back to this map only if you're curious. The one thing that matters: it's your plain files, in git, that you own." },
+
+    { tab: "Daily", goal: "You sit down to work", title: "Start the day, and close it",
+      groups: ["cc","s-session","journal","now","slog","x-git","x-obs"],
+      dialogue: [
+        { who: "You", txt: "<code>/daily-open</code>" },
+        { who: "It", txt: "Good morning. Today: 2 priorities, one reminder due — call the notary. Nothing urgent. Opened today's page." },
+        { who: "You", txt: "…later: <code>/session-end</code>" },
+        { who: "It", txt: "Logged and backed up. See you next time." }
+      ],
+      get: "<b>You get:</b> a briefing that hands you the day, and a safe backup when you're done. This is the only habit worth keeping — everything else is on demand.",
+      under: "<code>/daily-open</code> creates <code>04_journal/YYYY-MM-DD.md</code> and builds the briefing from <code>meta/NOW.md</code>. <code>/session-end</code> runs <code>git add -A</code> · commit · push. Very first time only: <code>/tour</code>." },
+
+    { tab: "Capture", goal: "You're deep in something and an unrelated thought hits", title: "Catch it without breaking your flow",
+      groups: ["s-capture","journal","now","inbox","clip"],
+      dialogue: [
+        { who: "You", txt: "<span class='hint'>(mid-way through the bp-tracker code)</span> …oh — remind me to book the dentist next week" },
+        { who: "It", txt: "Done — reminder set for next week. Noted it came up while you were on bp-tracker, in case that's useful later. Back to it." }
+      ],
+      get: "<b>You get:</b> the stray thought filed correctly and out of your head — and, <em>when it's relevant</em>, a note of what you were doing when it surfaced, so the thread isn't lost. You don't stop what you're doing.",
+      under: "<code>/capture</code> classifies and routes: dated reminder → <code>meta/NOW.md</code> · link → <code>02_clippings/</code> · task/idea → today's note · person → <code>05_entities/</code>. When the origin matters (it came up during a project) it adds a reference back to that work; when it doesn't, it just files it — it won't force context that isn't there. Plain words work as well as the command." },
+
+    { tab: "Research", goal: "You want to really understand something before deciding", title: "Research you'll actually keep",
+      groups: ["s-nb","x-nb","journal","clip"],
+      dialogue: [
+        { who: "You", txt: "<code>/notebooklm</code> — compare monofocal vs multifocal lenses for cataract surgery &nbsp;<span class='hint'>(or: research office chairs for a bad back)</span>" },
+        { who: "It", txt: "Created a notebook, pulled sources, reading… Here's the picture, with the trade-offs and where each source stands. Saved to today's note." },
+        { who: "You", txt: "and how does that change with astigmatism?" },
+        { who: "It", txt: "Answers from the same sources — and it stays saved, so you can pick it back up later." }
+      ],
+      get: "<b>You get:</b> a <b>sourced, saved</b> summary you can keep questioning and come back to — for a decision you're weighing (a surgery, a big purchase) or just getting current on a topic. Not a throwaway answer.",
+      under: "<code>/notebooklm</code> drives Google's NotebookLM: give it your own links/PDFs, or have it research a question on the live web (<code>--mode fast|deep</code>); the grounded answer is saved to today's note or <code>02_clippings/</code>. Only public sources go to Google. For a quick <em>current</em> fact instead, see the next screen." },
+
+    { tab: "Live facts", goal: "You want a quick, up-to-the-minute fact", title: "When another tool is the better one",
+      groups: ["x-nb"],
+      dialogue: [
+        { who: "You", txt: "what's the market doing right now? &nbsp;<span class='hint'>(or: find me a cheap flight next month)</span>" },
+        { who: "It", txt: "For a live number or today's fares, a browser or a search tool like Perplexity is faster and more current right now — my built-in knowledge has a cut-off date. But paste me a link and I'll pull that page's current contents; or I can research it and save you a sourced view." }
+      ],
+      get: "<b>You get:</b> an honest steer. <em>Today</em>, for live prices/news/fares → a browser or Perplexity. <b>Reut is wiring a Perplexity call right into your workspace</b>, so soon \"what's the latest?\" lives here too — and even now, give it a link and it can fetch that page.",
+      under: "Its own knowledge has a training cut-off, so don't rely on it alone for \"what's true today.\" Right now it <em>can</em> fetch a specific page you point it at (WebFetch / Firecrawl) and research via NotebookLM; open-ended live search is what the coming Perplexity integration adds. This screen is here so you always use whatever's actually best — this stuff moves fast." },
+
+    { tab: "Build", goal: "You want to build a little app, just for yourself", title: "From idea to a repo you can code in",
+      groups: ["s-proj","proj","x-code"],
+      dialogue: [
+        { who: "You", txt: "I want a small app to track my daily blood-pressure readings" },
+        { who: "It", txt: "Python, or a little web page you open in the browser? Store readings in a file, or a small database? … Good. Want me to set it up?" },
+        { who: "You", txt: "yes — <code>/project-new bp-tracker</code>" },
+        { who: "It", txt: "Set up: tracking note at <code>03_projects/bp-tracker/</code>, code repo at <code>~/code/bp-tracker/</code> (git-ready), on the shared venv. Ready when you are." }
+      ],
+      get: "<b>You get:</b> a tracked project and a real git repo, ready to code — no scaffolding by hand. It talks the design through with you first.",
+      under: "The design chat is just conversation (no command). <code>/project-new</code> makes <code>03_projects/&lt;slug&gt;/_INDEX.md</code> and <code>~/code/&lt;slug&gt;/</code> with <code>git init</code> on the shared <code>~/code/.venv</code>. No GitHub remote or per-project venv is created. Code lives outside the vault." },
+
+    { tab: "Memory", goal: "You ask about something — and it's been here before", title: "It remembers across sessions",
+      groups: ["slog","journal","now"],
+      dialogue: [
+        { who: "You", txt: "didn't I look into which lens to get, a while back?" },
+        { who: "It", txt: "Yes — three weeks ago you compared monofocal vs multifocal and leaned monofocal for the left eye. Here's that note. Pick it back up?" },
+        { who: "You", txt: "and why does the printer keep dropping off?" },
+        { who: "It", txt: "That's the third time — same USB timeout each time. Looks recurring, not a one-off; here's what we tried before." }
+      ],
+      get: "<b>You get:</b> continuity. Because it keeps a running record of your sessions (the <em>flight recorder</em>), it can recall past work, notice a recurring problem, and tie today to something from weeks ago — instead of starting blank every time.",
+      under: "Every session is logged to <code>meta/SESSION_LOG.md</code> with typed entries, and your notes persist as files. So \"have I done this before?\" and \"is this error recurring?\" are answerable — by you or by it, cold, later. This is the thing a fresh chatbot window can't do." },
+
+    { tab: "Recap", goal: "You come back to a project after weeks", title: "Pick up exactly where you left off",
+      groups: ["s-proj","proj","slog"],
+      dialogue: [
+        { who: "You", txt: "<code>/recap bp-tracker</code>" },
+        { who: "It", txt: "Phase: readings save fine, the chart is half-done. Last: added the weekly-average view. Next: handle a missed day." }
+      ],
+      get: "<b>You get:</b> back in context in one line — no re-reading your own notes to remember where you were.",
+      under: "<code>/recap</code> is read-only; it reconstructs state from the project's <code>_INDEX.md</code> + the log. <code>/overview</code> does the same for every project at once. To stop and continue <em>later</em>, see handovers under <b>⚙ Running it</b>." },
+
+    { tab: "Help", goal: "You're not sure, or something's off", title: "There's always an easy way out",
+      groups: ["s-meta","logs"],
+      dialogue: [
+        { who: "You", txt: "what can you do?" },
+        { who: "It", txt: "Lists everything it can do, in plain words." },
+        { who: "You", txt: "<code>/incident</code> the daily note didn't open" },
+        { who: "It", txt: "Drafted a note for Reut — no personal content. Look OK to send?" }
+      ],
+      get: "<b>You get:</b> a way forward that never requires digging — ask in plain words, or flag Reut privately.",
+      under: "<code>/incident</code> writes <code>06_logs/incidents/…md</code> + a line in <code>meta/_REUT_LOG.md</code>, scrubbed of personal content, shown to you before it's sent. Commands are editable markdown in <code>_utils/_skills/</code> if you ever want to change one." },
+
+    { tab: "Done", title: "That's the whole thing",
+      lead: "Every screen was the same shape: <strong>say what you want → it does it → it's saved.</strong> You don't need to remember a single command — ask it, or open <b>📖 All commands</b>. Two more tabs up top: <b>⚙ Running it</b> (models, limits, handovers) and <b>✦ Why this</b>. The only habit worth keeping: <code>/daily-open</code> to start the day, <code>/session-end</code> to close it." }
+  ];
+
+  var refGroups = [
+    { name: "Every session", rows: [
+      ["/daily-open", "morning: opens today's note + your briefing", "04_journal/DATE.md"],
+      ["/session-end", "done: saves + backs everything up (git)", "git remote"],
+      ["/tour", "one-time guided intro (first session only)", "—"] ] },
+    { name: "Catch &amp; tidy", rows: [
+      ["/capture &lt;x&gt;", "throw any thought/task/link/reminder at it", "auto-routed"],
+      ["/triage", "empty the inbox — sort + file everything", "various"],
+      ["/park &lt;x&gt;", "stash for later / hand off a thread", "01_inbox/"],
+      ["/stream &lt;dump&gt;", "sort a long ramble / voice dump", "auto-routed"] ] },
+    { name: "Build", rows: [
+      ["/project-new &lt;name&gt;", "tracked project + git repo in ~/code", "03_projects/ + ~/code/"],
+      ["/overview", "status of all projects (read-only)", "—"],
+      ["/recap &lt;proj&gt;", "where was I on this one? (read-only)", "—"] ] },
+    { name: "People &amp; meetings", rows: [
+      ["/entity-add", "add / update a person", "05_entities/"],
+      ["/meeting", "log a meeting + capture action items", "06_logs/"] ] },
+    { name: "Research", rows: [
+      ["/notebooklm", "hand it links/a question → get a summary", "today's note or 02_clippings/"] ] },
+    { name: "The rest", rows: [
+      ["/log-qa", "save an explanation as a findable note", "06_logs/knowledge/"],
+      ["/vault-maintenance", "flags anything stale (asks first)", "—"],
+      ["/incident", "send Reut a note (scrubbed, you approve)", "06_logs/incidents/"] ] }
+  ];
+
+  var idx = 0;
+  var ui = { details:false, mapTouched:false, map:false };  // sticky toggle state
+  var card = document.getElementById("card");
+  var stage = document.getElementById("stage");
+  var mapWrap = document.getElementById("mapWrap");
+  var mapSummary = document.getElementById("mapSummary");
+  var mapNodes = Array.prototype.slice.call(document.querySelectorAll("#stage .node"));
+  var count = document.getElementById("count");
+  var tocBox = document.getElementById("toc");
+  var prevBtn = document.getElementById("prevBtn");
+  var nextBtn = document.getElementById("nextBtn");
+
+  mapWrap.addEventListener("toggle", function () { ui.map = mapWrap.open; ui.mapTouched = true; });
+
+  steps.forEach(function (s, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = s.tab || ("Step " + (i + 1));
+    b.addEventListener("click", function () { go(i); });
+    tocBox.appendChild(b);
+  });
+  var tabs = Array.prototype.slice.call(tocBox.children);
+
+  function dialogueHTML(list) {
+    if (!list || !list.length) return "";
+    var h = "<div class='dialogue'>";
+    list.forEach(function (t) {
+      var cls = t.who === "You" ? "you" : "it";
+      h += "<div class='turn " + cls + "'><span class='who'>" + t.who + "</span><span class='txt'>" + t.txt + "</span></div>";
+    });
+    return h + "</div>";
+  }
+
+  function go(i) {
+    idx = Math.max(0, Math.min(steps.length - 1, i));
+    var s = steps[idx];
+    var h = "";
+    if (s.goal) h += "<p class='goal'>You want to · " + s.goal + "</p>";
+    h += "<h2>" + s.title + "</h2>";
+    if (s.lead) h += "<p class='lead'>" + s.lead + "</p>";
+    h += dialogueHTML(s.dialogue);
+    if (s.get) h += "<div class='get'>" + s.get + "</div>";
+    if (s.under) h += "<details class='wonder'><summary>The command &amp; the files behind it</summary><div class='ans'>" + s.under + "</div></details>";
+    card.innerHTML = h;
+
+    // sticky "details" open state
+    var det = card.querySelector("details.wonder");
+    if (det) {
+      det.open = ui.details;
+      det.addEventListener("toggle", function () { ui.details = det.open; });
+    }
+
+    // map: highlight this step's groups; open state is sticky once touched, else default (open on arch)
+    if (s.groups && s.groups.length) {
+      stage.classList.remove("hidden");
+      var active = {}; s.groups.forEach(function (g) { active[g] = true; });
+      mapNodes.forEach(function (n) { n.classList.toggle("dim", !active[n.getAttribute("data-g")]); });
+      mapWrap.open = ui.mapTouched ? ui.map : !!s.arch;
+      mapSummary.innerHTML = s.arch
+        ? "The whole system, one screen <span class='hint'>— optional; you don't need it to start</span>"
+        : "Where this happens on the map <span class='hint'>— optional, for the curious</span>";
+    } else {
+      stage.classList.add("hidden");
+    }
+
+    count.textContent = (idx + 1) + " / " + steps.length;
+    tabs.forEach(function (t, j) { t.classList.toggle("on", j === idx); });
+    prevBtn.disabled = idx === 0;
+    nextBtn.textContent = idx === steps.length - 1 ? "Done ✓" : "Next →";
+    window.scrollTo(0, 0);
+  }
+  prevBtn.addEventListener("click", function () { go(idx - 1); });
+  nextBtn.addEventListener("click", function () { go(idx + 1); });
+
+  function buildReference() {
+    var h = "<div class='panelhead'><h2>All commands</h2><button class='toggle backbtn' type='button'>← Back</button></div>";
+    h += "<p class='sub' style='margin-bottom:4px;'>Command · what it does · where it puts things.</p><table class='cmdtable'>";
+    refGroups.forEach(function (grp) {
+      h += "<caption>" + grp.name + "</caption>";
+      grp.rows.forEach(function (r) {
+        h += "<tr><td class='c'><code>" + r[0] + "</code></td><td>" + r[1] + "</td><td class='o'>" + r[2] + "</td></tr>";
+      });
+    });
+    h += "</table><p class='sub' style='margin-top:14px;'>Forgot one? Just ask <code>what can you do?</code></p>";
+    document.getElementById("reference").innerHTML = h;
+  }
+  buildReference();
+
+  var guided = document.getElementById("guided");
+  var reference = document.getElementById("reference");
+  var why = document.getElementById("why");
+  var cheat = document.getElementById("cheat");
+  function show(view) {
+    guided.classList.toggle("hidden", view !== "guided");
+    reference.classList.toggle("hidden", view !== "ref");
+    why.classList.toggle("hidden", view !== "why");
+    cheat.classList.toggle("hidden", view !== "cheat");
+    window.scrollTo(0, 0);
+  }
+  document.getElementById("mapBtn").addEventListener("click", function () { show("guided"); ui.mapTouched = true; ui.map = true; go(0); });
+  document.getElementById("refBtn").addEventListener("click", function () { show("ref"); });
+  document.getElementById("whyBtn").addEventListener("click", function () { show("why"); });
+  document.getElementById("cheatBtn").addEventListener("click", function () { show("cheat"); });
+  document.addEventListener("click", function (e) {
+    if (e.target && e.target.classList && e.target.classList.contains("backbtn")) show("guided");
+  });
+  document.addEventListener("keydown", function (e) {
+    if (!guided.classList.contains("hidden")) {
+      if (e.key === "ArrowRight") go(idx + 1);
+      else if (e.key === "ArrowLeft") go(idx - 1);
+    }
+  });
+
+  go(0);
+})();
+</script>
