@@ -178,11 +178,11 @@
   .ccnote { margin-top:14px; max-width:66ch; font-size:15px; color:var(--ink); border-left:3px solid var(--accent); background:var(--accent-bg); padding:10px 0 10px 14px; border-radius:0 8px 8px 0; }
   .card.kind-why h2, .card.kind-claude h2 { max-width:60ch; }
   /* TOC + on-page ranking: must (warn) · good (accent) · optional (grey) */
-  .toc button.r-must { color:var(--warn); border-color:color-mix(in srgb, var(--warn) 34%, var(--line)); }
+  .toc button.r-must { color:var(--warn); background:var(--warn-bg); border-color:color-mix(in srgb, var(--warn) 42%, var(--line)); }
   .toc button.r-must.on { background:var(--warn); border-color:var(--warn); color:#fff; }
-  .toc button.r-good { color:var(--accent); }
+  .toc button.r-good { color:var(--accent); background:var(--accent-bg); border-color:color-mix(in srgb, var(--accent) 36%, var(--line)); }
   .toc button.r-good.on { background:var(--accent); border-color:var(--accent); color:#fff; }
-  .toc button.r-opt { color:var(--muted); }
+  .toc button.r-opt { color:var(--muted); background:color-mix(in srgb, var(--edge) 14%, transparent); border-color:var(--line); }
   .toc button.r-opt.on { background:var(--edge); border-color:var(--edge); color:#fff; }
   .toc button:hover { border-color:currentColor; }
   .legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:9px; font-size:11.5px; color:var(--muted); }
@@ -408,8 +408,9 @@
   // importance ranking, shown on the tabs + a per-page chip
   var RANK = {
     "Map":"opt", "Daily":"must", "Capture":"must", "Why · it's yours":"opt",
-    "Research":"good", "Live facts":"good", "Build":"good", "Memory":"good",
-    "Why · vs chatbot":"opt", "Recap":"good", "Help":"good", "The tool":"opt", "Done":"opt"
+    "Research":"must", "Live facts":"good", "Build":"must", "Memory":"good",
+    "Why · vs chatbot":"opt", "Recap":"good", "Help":"good",
+    "The tool":"opt", "Model":"good", "Context":"good", "Handover":"good", "Done":"opt"
   };
   var RANK_LABEL = { must:"★ must-read", good:"◐ good to know", opt:"○ optional" };
   function rankOf(s) { return RANK[s.tab] || "good"; }
@@ -527,8 +528,23 @@
 
     { kind: "claude", tab: "The tool", groups: TOOLG,
       title: "One layer down: Claude Code itself",
-      lead: "Everything so far was <strong>your assistant's commands</strong>. They run inside a tool — <strong>Claude Code</strong> — and a few things about the tool itself are worth a glance: which <strong>model</strong> to use, keeping an eye on <strong>context</strong> and <strong>usage limits</strong>, and <strong>handing off</strong> to continue later.",
-      note: "This is a different kind of thing from your commands, so it has its own page. Open <a class='golink' data-goto='cheat'>⚙ Running it</a> for the must-knows (you don't need it to start) — or find these on <a class='golink' data-goto='map'>🗺 the map</a>, the bottom band." },
+      lead: "Everything so far was <strong>your assistant's commands</strong>. They run inside a tool — <strong>Claude Code</strong> — and the next three screens cover the few things about the tool worth knowing: which <strong>model</strong> to use, keeping an eye on <strong>context &amp; limits</strong>, and <strong>handing off</strong> to continue later.",
+      note: "These three are the essentials. The <strong>full reference</strong> — every model, the limits, subagents, workflows, the lot — lives in <a class='golink' data-goto='cheat'>⚙ Running it</a>, to dip into whenever. It's all the bottom band of <a class='golink' data-goto='map'>🗺 the map</a>." },
+
+    { kind: "claude", tab: "Model", groups: ["cc","cc-model"],
+      title: "Pick the right model",
+      lead: "Type <code>/model</code> to switch which brain it uses. <strong>Sonnet</strong> is the default and handles about 95% of things — stay there. Reach for <strong>Opus</strong> when it's stuck on something genuinely hard; drop to <strong>Haiku</strong> for quick, light stuff; <strong>Fable</strong> only for the very hardest long jobs.",
+      note: "The catch: the heavier the model, the faster it uses up your limit — so switch up only when you need to, then back down. Every model, spelled out, in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "Context", groups: ["cc","cc-context","cc-limits"],
+      title: "Keep an eye on context &amp; limits",
+      lead: "Each session has a memory (its <strong>context</strong>), and your Pro plan has <strong>usage limits</strong> — a rolling 5-hour window and a weekly one. Your status line shows both: the model, and how much room is left.",
+      note: "When context fills, quality dips — <code>/clear</code> to start fresh between unrelated tasks (your notes are saved regardless, so nothing's lost). <code>/usage</code> shows where you stand. More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "Handover", groups: ["cc","cc-handover"],
+      title: "Hand off to continue later",
+      lead: "Stopping mid-task, or the context filling up? Have it write a <strong>handover</strong> — a short note of where things stand and what's next — and a fresh session picks up cleanly. (<code>/park</code> is a lighter version.)",
+      note: "The handover is just a note in your vault, so it survives a fresh start or a new day: say \"write a handover before we stop,\" then next time \"read the handover and continue.\" More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
 
     { tab: "Done", title: "That's the whole thing",
       lead: "Every screen was the same shape: <strong>say what you want → it does it → it's saved.</strong> You don't need to remember a single command — ask it, or open <a class='golink' data-goto='ref'>📖 All commands</a>. For the tool itself, there's <a class='golink' data-goto='cheat'>⚙ Running it</a>. The only habit worth keeping: <code>/daily-open</code> to start the day, <code>/session-end</code> to close it." }
