@@ -177,14 +177,22 @@
   .whynote { margin-top:14px; max-width:66ch; font-size:14.5px; color:var(--muted); border-left:3px solid var(--data); background:color-mix(in srgb, var(--data-bg) 55%, transparent); padding:10px 0 10px 14px; border-radius:0 8px 8px 0; }
   .ccnote { margin-top:14px; max-width:66ch; font-size:15px; color:var(--ink); border-left:3px solid var(--accent); background:var(--accent-bg); padding:10px 0 10px 14px; border-radius:0 8px 8px 0; }
   .card.kind-why h2, .card.kind-claude h2 { max-width:60ch; }
-  /* TOC colour-coded by kind */
-  .toc button.on { background:var(--ext); border-color:var(--ext); color:#fff; }
-  .toc button.k-why { color:var(--data); }
-  .toc button.k-why:hover { border-color:var(--data); color:var(--data); }
-  .toc button.k-why.on { background:var(--data); border-color:var(--data); color:#fff; }
-  .toc button.k-cc { color:var(--accent); }
-  .toc button.k-cc:hover { border-color:var(--accent); color:var(--accent); }
-  .toc button.k-cc.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  /* TOC + on-page ranking: must (warn) · good (accent) · optional (grey) */
+  .toc button.r-must { color:var(--warn); border-color:color-mix(in srgb, var(--warn) 34%, var(--line)); }
+  .toc button.r-must.on { background:var(--warn); border-color:var(--warn); color:#fff; }
+  .toc button.r-good { color:var(--accent); }
+  .toc button.r-good.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .toc button.r-opt { color:var(--muted); }
+  .toc button.r-opt.on { background:var(--edge); border-color:var(--edge); color:#fff; }
+  .toc button:hover { border-color:currentColor; }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:9px; font-size:11.5px; color:var(--muted); }
+  .legend span { display:inline-flex; align-items:center; }
+  .legend i { width:9px; height:9px; border-radius:50%; margin-right:6px; display:inline-block; }
+  .legend i.must { background:var(--warn); } .legend i.good { background:var(--accent); } .legend i.opt { background:var(--edge); }
+  .rankchip { display:inline-block; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:10px; letter-spacing:.06em; text-transform:uppercase; padding:2px 9px; border-radius:20px; margin-bottom:9px; }
+  .rankchip.must { background:var(--warn-bg); color:var(--warn); border:1px solid var(--warn); }
+  .rankchip.good { background:var(--accent-bg); color:var(--accent); border:1px solid var(--accent); }
+  .rankchip.opt { background:color-mix(in srgb, var(--surface) 70%, transparent); color:var(--muted); border:1px solid var(--edge); }
   .golink { color:var(--accent); font-weight:700; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
   .golink:hover { opacity:.8; }
   .phlink { color:var(--accent); text-decoration:underline dashed; text-underline-offset:2px; cursor:default; }
@@ -236,6 +244,7 @@
         <span class="kbd-hint"><kbd>←</kbd> <kbd>→</kbd> also work</span>
       </div>
       <div class="toc" id="toc"></div>
+      <div class="legend"><span><i class="must"></i>must-read</span><span><i class="good"></i>good to know</span><span><i class="opt"></i>optional — background &amp; power tools</span></div>
     </div>
 
     <div class="card" id="card" aria-live="polite"></div>
@@ -396,6 +405,14 @@
               "x-nb","x-git","x-code","x-obs","x-hook",
               "cc-model","cc-modes","cc-context","cc-limits","cc-agents","cc-handover"];
   var TOOLG = ["cc","cc-model","cc-modes","cc-context","cc-limits","cc-agents","cc-handover"];
+  // importance ranking, shown on the tabs + a per-page chip
+  var RANK = {
+    "Map":"opt", "Daily":"must", "Capture":"must", "Why · it's yours":"opt",
+    "Research":"good", "Live facts":"good", "Build":"good", "Memory":"good",
+    "Why · vs chatbot":"opt", "Recap":"good", "Help":"good", "The tool":"opt", "Done":"opt"
+  };
+  var RANK_LABEL = { must:"★ must-read", good:"◐ good to know", opt:"○ optional" };
+  function rankOf(s) { return RANK[s.tab] || "good"; }
 
   var steps = [
     { arch: true, tab: "Map", title: "The shape — a look, then forget it",
@@ -559,8 +576,7 @@
   steps.forEach(function (s, i) {
     var b = document.createElement("button");
     b.type = "button"; b.textContent = s.tab || ("Step " + (i + 1));
-    if (s.kind === "why") b.classList.add("k-why");
-    else if (s.kind === "claude") b.classList.add("k-cc");
+    b.classList.add("r-" + rankOf(s));
     b.addEventListener("click", function () { go(i); });
     tocBox.appendChild(b);
   });
@@ -580,7 +596,8 @@
     idx = Math.max(0, Math.min(steps.length - 1, i));
     var s = steps[idx];
     var kind = s.kind || (s.goal ? "workflow" : "plain");
-    var h = "";
+    var rk = rankOf(s);
+    var h = "<span class='rankchip " + rk + "'>" + RANK_LABEL[rk] + "</span><br>";
     if (kind === "why") h += "<p class='eyebrow-why'>✦ Why it's worth it — background, not a how-to</p>";
     else if (kind === "claude") h += "<p class='eyebrow-cc'>⚙ Claude Code — the tool it runs in</p>";
     else if (s.goal) h += "<p class='goal'>You want to · " + s.goal + "</p>";
