@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gws setup — per person</title>
+<style>
+  :root{
+    --paper:#F4F2EE; --surface:#FFFFFF; --ink:#20272E; --muted:#5D6B78; --line:#DCD6CB;
+    --accent:#2F6B8A; --accent-bg:#E7F0F5;
+    --ok:#3E7A55; --ok-bg:#E4F1E8;
+    --warn:#A64A3C; --warn-bg:#F7E7E3;
+    --code-bg:#1C2530; --code-ink:#E7ECF1; --code-comment:#8B98A6;
+    --ph:#A64A3C; --ph-bg:#F7E7E3;
+    --shadow:0 1px 2px rgba(28,37,48,.06), 0 8px 24px rgba(28,37,48,.07);
+    --radius:12px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#14181C; --surface:#1D242B; --ink:#E9EDF1; --muted:#9AA6B2; --line:#2E373F;
+      --accent:#6FB0CE; --accent-bg:#17303C;
+      --ok:#74BB8E; --ok-bg:#16301F;
+      --warn:#E0897A; --warn-bg:#3A2320;
+      --code-bg:#0F1419; --code-ink:#E7ECF1; --code-comment:#7C8895;
+      --ph:#E0897A; --ph-bg:#3A2320;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.28);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#14181C; --surface:#1D242B; --ink:#E9EDF1; --muted:#9AA6B2; --line:#2E373F;
+    --accent:#6FB0CE; --accent-bg:#17303C; --ok:#74BB8E; --ok-bg:#16301F;
+    --warn:#E0897A; --warn-bg:#3A2320; --code-bg:#0F1419; --code-ink:#E7ECF1; --code-comment:#7C8895;
+    --ph:#E0897A; --ph-bg:#3A2320; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.28);
+  }
+  :root[data-theme="light"]{
+    --paper:#F4F2EE; --surface:#FFFFFF; --ink:#20272E; --muted:#5D6B78; --line:#DCD6CB;
+    --accent:#2F6B8A; --accent-bg:#E7F0F5; --ok:#3E7A55; --ok-bg:#E4F1E8;
+    --warn:#A64A3C; --warn-bg:#F7E7E3; --code-bg:#1C2530; --code-ink:#E7ECF1; --code-comment:#8B98A6;
+    --ph:#A64A3C; --ph-bg:#F7E7E3; --shadow:0 1px 2px rgba(28,37,48,.06), 0 8px 24px rgba(28,37,48,.07);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper); color:var(--ink); margin:0;
+    font-family:"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;
+    font-size:16px; line-height:1.62; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:860px; margin:0 auto; padding:26px 22px 90px}
+  a{color:var(--accent); text-underline-offset:2px}
+  a:hover{text-decoration-thickness:2px}
+  code{font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:.86em;
+    background:var(--accent-bg); color:var(--accent); padding:1px 6px; border-radius:5px}
+
+  /* header */
+  .eyebrow{font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--muted); margin:0 0 8px}
+  h1{font-family:"Charter","Iowan Old Style",Georgia,serif; font-size:30px; line-height:1.2; margin:0; text-wrap:balance}
+  .sub{color:var(--muted); font-size:16px; margin:10px 0 0; max-width:60ch}
+  .topbar{display:flex; justify-content:space-between; align-items:flex-start; gap:12px}
+  .theme{cursor:pointer; border:1px solid var(--line); background:var(--surface); color:var(--muted);
+    font:inherit; font-size:13px; padding:6px 11px; border-radius:99px; white-space:nowrap}
+  .theme:hover{color:var(--ink); border-color:var(--accent)}
+
+  /* section headings */
+  h2{font-family:"Charter","Iowan Old Style",Georgia,serif; font-size:22px; margin:44px 0 4px;
+    padding-top:16px; border-top:1px solid var(--line); scroll-margin-top:16px}
+  h2 .n{color:var(--accent); font-variant-numeric:tabular-nums}
+  .lead{color:var(--muted); margin:6px 0 18px}
+  h3{font-size:15px; margin:24px 0 8px; letter-spacing:.01em}
+
+  /* command block */
+  .cmd{position:relative; background:var(--code-bg); border-radius:10px; margin:12px 0;
+    box-shadow:var(--shadow); overflow:hidden}
+  .cmd pre{margin:0; padding:15px 52px 15px 16px; overflow-x:auto;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:13.5px; line-height:1.66;
+    color:var(--code-ink); tab-size:2}
+  .cmd pre .c{color:var(--code-comment)}
+  .copy{position:absolute; top:9px; right:9px; border:none; cursor:pointer;
+    background:rgba(255,255,255,.08); color:#C7D0DA; font:inherit; font-size:11px; font-weight:600;
+    letter-spacing:.03em; padding:5px 10px; border-radius:7px; transition:.15s}
+  .copy:hover{background:rgba(255,255,255,.16); color:#fff}
+  .copy.ok{background:var(--ok); color:#fff}
+
+  .ph{background:var(--ph-bg); color:var(--ph); border-radius:4px; padding:0 4px;
+    font-style:normal; font-weight:600}
+
+  /* callouts */
+  .call{border-radius:var(--radius); padding:14px 16px; margin:16px 0; border:1px solid var(--line);
+    background:var(--surface); box-shadow:var(--shadow)}
+  .call .h{font-weight:700; margin:0 0 4px; display:flex; gap:8px; align-items:center}
+  .call p{margin:6px 0 0}
+  .call.warn{border-color:color-mix(in srgb, var(--warn) 45%, var(--line)); background:var(--warn-bg)}
+  .call.warn .h{color:var(--warn)}
+  .call.ok{border-color:color-mix(in srgb, var(--ok) 45%, var(--line)); background:var(--ok-bg)}
+  .call.ok .h{color:var(--ok)}
+  .tag{font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; font-weight:700;
+    padding:1px 7px; border-radius:99px; background:var(--warn); color:#fff; letter-spacing:.02em}
+
+  /* table */
+  .tbl{width:100%; border-collapse:collapse; margin:14px 0; font-size:14.5px}
+  .tbl th,.tbl td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+  .tbl th{font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700}
+  .tbl td:first-child{color:var(--muted)}
+  .tbl .arrow td:last-child{color:var(--ink); font-weight:600}
+
+  ol,ul{padding-left:20px} li{margin:5px 0}
+  details{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:2px 16px; margin:16px 0; box-shadow:var(--shadow)}
+  summary{cursor:pointer; font-weight:700; padding:12px 0; list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ "; color:var(--accent)}
+  details[open] summary::before{content:"▾ "}
+  .foot{margin-top:56px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px}
+  .steplink{font-size:13.5px; color:var(--muted); margin:4px 0 22px; display:flex; flex-wrap:wrap; gap:4px 14px}
+  .steplink a{white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <p class="eyebrow">family-assistant · setup</p>
+      <h1>Setting up <code>gws</code> on a new person's machine</h1>
+    </div>
+    <button class="theme" id="theme">◐ theme</button>
+  </div>
+  <p class="sub">Give Dad (or anyone) the Google Workspace CLI wired to <strong>his own</strong> Google account and his own Google Cloud project — a mirror of the working setup, built from scratch on his machine. Nothing is copied from Reut's computer.</p>
+
+  <nav class="steplink" aria-label="Steps">
+    <a href="#target">Target shape</a>
+    <a href="#step0">0 · Prereqs</a>
+    <a href="#step1">1 · Project + client</a>
+    <a href="#step2">2 · Publish consent</a>
+    <a href="#step3">3 · Log in</a>
+    <a href="#step4">4 · Verify</a>
+    <a href="#gotchas">The 3 traps</a>
+    <a href="#manual">No-gcloud path</a>
+  </nav>
+
+  <div class="call ok">
+    <p class="h">🔑 The one rule</p>
+    <p>He gets <strong>his own credentials</strong> — his own GCP project, his own OAuth client, authenticated as his Google account. Never copy Reut's <code>client_secret.json</code> or tokens onto his machine. Everything below runs <strong>on his computer, signed into his account.</strong></p>
+  </div>
+
+  <h2 id="target">Target shape</h2>
+  <p class="lead">What "similar credentials" means — the working machine on the left, what he ends up with on the right.</p>
+  <table class="tbl">
+    <thead><tr><th>Working machine</th><th>Dad gets</th></tr></thead>
+    <tbody>
+      <tr class="arrow"><td>OAuth client type: <strong>Desktop app</strong> ("installed")</td><td>same — Desktop app</td></tr>
+      <tr class="arrow"><td>Project: <code>gws-cli-reutaux</code></td><td><code>gws-cli-<span class="ph">his-localpart</span></code> (auto-named)</td></tr>
+      <tr class="arrow"><td>9 Workspace APIs enabled</td><td>same set (Drive, Gmail, Calendar, Docs, Sheets, Slides, Tasks, People, Meet)</td></tr>
+      <tr class="arrow"><td>Consent screen: <strong>Production</strong></td><td>same — Production</td></tr>
+      <tr class="arrow"><td><code>~/.config/gws/</code> → secret + token files</td><td>his own, generated locally — nothing copied</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="step0"><span class="n">0</span> · Prerequisites</h2>
+  <p class="lead">Run this on his machine first. It tells you which path Step 1 takes.</p>
+  <div class="cmd"><button class="copy">Copy</button><pre>brew --version && gws --version && gcloud --version</pre></div>
+  <ul>
+    <li>No <code>gws</code> → install it:</li>
+  </ul>
+  <div class="cmd"><button class="copy">Copy</button><pre>brew install googleworkspace-cli</pre></div>
+  <ul>
+    <li>No <code>gcloud</code> → install it for the one-command path (or skip it and use the <a href="#manual">no-gcloud path</a>):</li>
+  </ul>
+  <div class="cmd"><button class="copy">Copy</button><pre>brew install --cask google-cloud-sdk</pre></div>
+
+  <h2 id="step1"><span class="n">1</span> · Create his project + Desktop OAuth client</h2>
+  <p class="lead"><code>gws auth setup</code> creates the Cloud project, enables the APIs, and makes the Desktop OAuth client in one shot — it's what produced <code>gws-cli-reutaux</code> originally.</p>
+  <div class="cmd"><button class="copy">Copy</button><pre><span class="c"># sign in as HIS account — see trap #1 below</span>
+gcloud auth login
+
+<span class="c"># creates gws-cli-&lt;his&gt;, enables APIs, makes the Desktop OAuth client</span>
+gws auth setup</pre></div>
+
+  <h2 id="step2"><span class="n">2</span> · Publish the consent screen to Production</h2>
+  <p class="lead">This is console-only — it can't be done from the CLI — and it's the fix for the token dying every 7 days. Do it as <strong>his</strong> account. Replace the placeholder with his real project id from Step 1.</p>
+  <div class="cmd"><button class="copy">Copy</button><pre>https://console.cloud.google.com/auth/audience?project=gws-cli-<span class="ph">his-localpart</span></pre></div>
+  <p>Publishing status <strong>Testing</strong> → <strong>Publish app</strong> → <strong>Confirm</strong>. Published-unverified is fine for personal use; the 100-user cap is irrelevant.</p>
+
+  <h2 id="step3"><span class="n">3</span> · Log him in</h2>
+  <p class="lead">The OAuth browser flow — he approves scopes as himself.</p>
+  <div class="cmd"><button class="copy">Copy</button><pre>gws auth login</pre></div>
+  <div class="call warn">
+    <p class="h"><span class="tag">TRAP</span> Never copy-paste the printed URL</p>
+    <p>Terminal line-wrap truncates the long OAuth URL → <code>Error 400: invalid_request — missing response_type</code>. <strong>Cmd-click</strong> it instead. If Claude is driving on his machine, background the login and hand over a clickable link:</p>
+  </div>
+  <div class="cmd"><button class="copy">Copy</button><pre>pkill -f "gws auth login"            <span class="c"># clear stale login servers</span>
+gws auth login > /tmp/gws-login.log 2>&1 &   <span class="c"># background it, then read the full URL from the log</span></pre></div>
+  <p>Append <code>&amp;login_hint=<span class="ph">his-email</span></code> to the URL to pre-pick his account. At Google's <strong>"hasn't verified this app"</strong> screen → <strong>Advanced → Go to gws-cli-<span class="ph">his</span> (unsafe)</strong>. That's expected, because it's unverified-Production.</p>
+
+  <h2 id="step4"><span class="n">4</span> · Verify</h2>
+  <div class="cmd"><button class="copy">Copy</button><pre>gws auth status</pre></div>
+  <p><code>token_valid: true</code>, and <code>project_id</code> should be <strong>his</strong>, not <code>gws-cli-reutaux</code>. Then a real call:</p>
+  <div class="cmd"><button class="copy">Copy</button><pre>gws calendar events list --params '{"calendarId":"primary","maxResults":1}'</pre></div>
+
+  <h2 id="gotchas">The 3 things that weren't straightforward</h2>
+  <p class="lead">All three bit the original setup. They'll all show up at his too.</p>
+
+  <div class="call warn">
+    <p class="h"><span class="tag">1</span> Wrong Google account auto-validates</p>
+    <p>If he's signed into more than one Google account in the browser, the chooser silently grabs the wrong one. <strong>Explicitly click his account</strong> at <em>every</em> step — the <code>gcloud auth login</code>, and the OAuth approval. This caused more grief than anything else last time.</p>
+  </div>
+  <div class="call warn">
+    <p class="h"><span class="tag">2</span> Testing-mode = weekly re-auth</p>
+    <p>Skip Step 2 and his refresh token dies every ~7 days with <code>invalid_grant: Token has been expired or revoked</code>. Publishing the consent screen to Production once is the whole fix.</p>
+  </div>
+  <div class="call warn">
+    <p class="h"><span class="tag">3</span> Truncated login URL</p>
+    <p>Copy-pasting the login URL out of the terminal breaks it (<code>missing response_type</code>). Cmd-click it, or background-and-clickable-link as in Step 3.</p>
+  </div>
+
+  <details id="manual">
+    <summary>No-gcloud path — create the project by hand in the Cloud Console</summary>
+    <p>Same end result as Step 1, all clicks, no <code>gcloud</code> install. Do it all as <strong>his</strong> account at <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a>.</p>
+    <ol>
+      <li><strong>New project</strong> — name it something like <code>gws-cli-<span class="ph">his-localpart</span></code>.</li>
+      <li><strong>Enable these 9 APIs</strong> (APIs &amp; Services → Library):</li>
+    </ol>
+    <div class="cmd"><button class="copy">Copy</button><pre>drive.googleapis.com
+gmail.googleapis.com
+calendar-json.googleapis.com
+docs.googleapis.com
+sheets.googleapis.com
+slides.googleapis.com
+tasks.googleapis.com
+people.googleapis.com
+meet.googleapis.com</pre></div>
+    <ol start="3">
+      <li><strong>Configure the OAuth consent screen</strong> → User type <em>External</em> → fill app name + his email.</li>
+      <li><strong>Credentials → Create Credentials → OAuth client ID → Application type: Desktop app.</strong></li>
+      <li><strong>Download JSON</strong> and save it exactly here:</li>
+    </ol>
+    <div class="cmd"><button class="copy">Copy</button><pre>~/.config/gws/client_secret.json</pre></div>
+    <ol start="6">
+      <li>Then do <a href="#step2">Step 2</a> (publish to Production) and <a href="#step3">Step 3</a> (<code>gws auth login</code>).</li>
+    </ol>
+  </details>
+
+  <div class="foot">
+    Every command block copies on click. Placeholders like <span class="ph">his-localpart</span> and <span class="ph">his-email</span> are the only things you swap in.<br>
+    Source of truth: <code>03/Projects/family-assistant</code> · gws CLI: <a href="https://github.com/googleworkspace/cli" target="_blank" rel="noopener">github.com/googleworkspace/cli</a>
+  </div>
+
+</div>
+
+<script>
+  // theme toggle (persists)
+  (function(){
+    var root=document.documentElement, btn=document.getElementById('theme');
+    try{var s=localStorage.getItem('gws-theme'); if(s) root.setAttribute('data-theme',s);}catch(e){}
+    btn.addEventListener('click',function(){
+      var cur=root.getAttribute('data-theme');
+      var next = cur==='dark' ? 'light' : cur==='light' ? 'dark'
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light':'dark');
+      root.setAttribute('data-theme',next);
+      try{localStorage.setItem('gws-theme',next);}catch(e){}
+    });
+  })();
+
+  // copy buttons — copy the command text, strip nothing but keep it runnable
+  document.querySelectorAll('.cmd').forEach(function(block){
+    var btn=block.querySelector('.copy'), pre=block.querySelector('pre');
+    btn.addEventListener('click',function(){
+      var text=pre.innerText.replace(/\s+$/,'');
+      navigator.clipboard.writeText(text).then(function(){
+        var old=btn.textContent; btn.textContent='Copied ✓'; btn.classList.add('ok');
+        setTimeout(function(){btn.textContent=old; btn.classList.remove('ok');},1400);
+      }).catch(function(){
+        // fallback for older browsers
+        var r=document.createRange(); r.selectNode(pre);
+        var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        try{document.execCommand('copy');}catch(e){}
+        sel.removeAllRanges();
+        btn.textContent='Copied ✓'; btn.classList.add('ok');
+        setTimeout(function(){btn.textContent='Copy'; btn.classList.remove('ok');},1400);
+      });
+    });
+  });
+</script>
+</body>
+</html>
