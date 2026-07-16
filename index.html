@@ -187,6 +187,19 @@
   .toc button.k-cc.on { background:var(--accent); border-color:var(--accent); color:#fff; }
   .golink { color:var(--accent); font-weight:700; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
   .golink:hover { opacity:.8; }
+  .phlink { color:var(--accent); text-decoration:underline dashed; text-underline-offset:2px; cursor:default; }
+  .infonote { margin-top:14px; max-width:66ch; font-size:14.5px; color:var(--muted); border-left:3px solid var(--edge); background:color-mix(in srgb, var(--surface) 70%, transparent); padding:10px 0 10px 14px; border-radius:0 8px 8px 0; }
+  .infonote b { color:var(--ink); }
+  /* cheat-sheet tiers: must (red) · good (blue) · optional (grey) */
+  .tier { display:flex; align-items:baseline; gap:12px; margin:26px 0 8px; padding:9px 14px; border-radius:8px; flex-wrap:wrap; }
+  .tier .t-badge { font-weight:700; font-size:14.5px; }
+  .tier .t-sub { font-size:12.5px; color:var(--muted); }
+  .tier.must { background:var(--warn-bg); border-left:4px solid var(--warn); }
+  .tier.must .t-badge { color:var(--warn); }
+  .tier.good { background:var(--accent-bg); border-left:4px solid var(--accent); }
+  .tier.good .t-badge { color:var(--accent); }
+  .tier.opt { background:color-mix(in srgb, var(--surface) 70%, transparent); border-left:4px solid var(--edge); }
+  .tier.opt .t-badge { color:var(--muted); }
 
   footer { margin-top:30px; color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
   a { color:var(--accent); }
@@ -290,7 +303,9 @@
     </div>
     <p class="sub" style="max-width:74ch;">You don't need most of this to start. The top five are the must-knows; the rest is there for when you want it. You're on the <b>Pro</b> plan.</p>
 
-    <h3 class="sec">The five must-knows</h3>
+    <p class="sub" style="margin:8px 0 2px; max-width:74ch;">Three levels below — <b>only the first is a must.</b> Everything under it is there when you want it, not homework.</p>
+
+    <div class="tier must"><span class="t-badge">★ Must-read</span><span class="t-sub">the five things to actually know</span></div>
 
     <div class="crow"><div class="lbl"><span class="n">1</span>Start it</div><div class="b">
       <p>Open a terminal in your <code>~/family-assistant</code> folder and type <code>claude</code>. That's it.</p>
@@ -329,7 +344,7 @@
       <p class="m">Heavier models eat the limit faster — <b>Opus ~1.7×</b>, <b>Fable ~3.3×</b> Sonnet's rate. Opus also has its own separate cap: hit "Opus limit" and Sonnet/Haiku still work.</p>
       <div class="callout">If you run out: wait for the window to reset, or switch to a lighter model (<code>/model</code> → Sonnet or Haiku). Staying on Sonnet is the easiest way not to hit limits. (Max plans have bigger windows if you ever outgrow Pro.)</div></div></div>
 
-    <h3 class="sec">Continuing later — handovers</h3>
+    <div class="tier good"><span class="t-badge">◐ Good to know</span><span class="t-sub">handy — dip in when you want</span></div>
     <div class="crow"><div class="lbl">Hand off &amp; resume</div><div class="b">
       <p>Stopping mid-task, or the context is filling up? Don't push a tired session — have it write a <b>handover</b>: a short note of where things stand and what's next. A fresh session reads it and picks up cleanly.</p>
       <table class="mt">
@@ -339,14 +354,20 @@
       </table>
       <details class="d"><summary>when to hand off</summary><div class="in">Three moments: (1) you hit a natural stop with unfinished work; (2) <code>/context</code> is getting full — a fresh session + a handover beats a bloated one; (3) you want a different model for the next stretch. The handover is just a note in your vault, so it survives a <code>/clear</code> or a new day.</div></details></div></div>
 
-    <h3 class="sec">Handy to know — grow into these</h3>
     <div class="crow"><div class="lbl">Ask, don't dig</div><div class="b"><p>Forget something? Ask in plain words: <code>what can you do?</code>, <code>how do I…?</code>. It answers. You never memorize commands.</p></div></div>
     <div class="crow"><div class="lbl">Subagents <span class="tag">helpers</span></div><div class="b">
       <p>For a big or side task, it can send off a <b>helper agent</b> that works separately and brings back just the answer — keeping your main chat clean.</p>
       <details class="d"><summary>when it helps</summary><div class="in">"Go read all these files and summarize," or "look into X while we keep going." You don't set it up — just ask; it decides.</div></details></div></div>
+    <div class="tier opt"><span class="t-badge">○ If you're curious</span><span class="t-sub">power tools — entirely optional, none needed to work</span></div>
     <div class="crow"><div class="lbl">Workflows <span class="tag adv">advanced</span></div><div class="b">
       <p>For a large job it can run <b>many agents at once</b> in a structured way, then pull the results together.</p>
       <details class="d"><summary>the catch</summary><div class="in">Powerful but heavy on quota (many agents at once), so it's opt-in — ask for it when you have something genuinely big.</div></details></div></div>
+    <div class="crow"><div class="lbl">Firecrawl <span class="tag">web</span></div><div class="b">
+      <p>Reads <b>live web pages</b>. Hand it a link and it pulls that page's current contents in cleanly — more than a plain URL gives you. Good for up-to-date info from a specific site.</p>
+      <details class="d"><summary>status &amp; use</summary><div class="in">Reut is setting this up. Once it's in, "read this page and pull the numbers" works on a link you give it. For open-ended "search the web," that's the coming Perplexity integration — different thing.</div></details></div></div>
+    <div class="crow"><div class="lbl">Context Mode <span class="tag">big jobs</span></div><div class="b">
+      <p>A sandbox for <b>heavy lifting</b>. When there's a lot to chew through (long logs, big files, piles of data), it works off to the side and brings back just the answer — keeping your conversation clean. You have this; it mostly runs on its own.</p>
+      <details class="d"><summary>when it kicks in</summary><div class="in">Automatic for large outputs — you don't invoke it. The upshot: big analysis jobs don't fill up your context or slow the chat down.</div></details></div></div>
     <div class="crow"><div class="lbl">A few more</div><div class="b">
       <table class="mt">
         <tr><td class="k">Show a picture</td><td>paste/drop a screenshot or photo and ask about it — it can see images.</td></tr>
@@ -392,14 +413,17 @@
       get: "<b>You get:</b> a briefing that hands you the day, and a safe backup when you're done. This is the only habit worth keeping — everything else is on demand.",
       under: "<code>/daily-open</code> creates <code>04_journal/YYYY-MM-DD.md</code> and builds the briefing from <code>meta/NOW.md</code>. <code>/session-end</code> runs <code>git add -A</code> · commit · push. Very first time only: <code>/tour</code>." },
 
-    { tab: "Capture", goal: "You're deep in something and an unrelated thought hits", title: "Catch it without breaking your flow",
+    { tab: "Capture", goal: "You're deep in something and things keep popping up", title: "Catch them all, without breaking stride",
       groups: ["s-capture","journal","now","inbox","clip"],
       dialogue: [
-        { who: "You", txt: "<span class='hint'>(mid-way through the bp-tracker code)</span> …oh — remind me to book the dentist next week" },
-        { who: "It", txt: "Done — reminder set for next week. Noted it came up while you were on bp-tracker, in case that's useful later. Back to it." }
+        { who: "You", txt: "<span class='hint'>(mid-way through the bp-tracker code)</span> …remind me to see the eye doctor next Tuesday at 3" },
+        { who: "It", txt: "Done — quietly, so you can keep going. It's in <a class='phlink' title='example — links to the real note'>today's note ↗</a>, on your <a class='phlink' title='example — links to the calendar event'>calendar ↗</a> for Tue 3pm, and as a <a class='phlink' title='example — links to the task'>task ↗</a>. Back to it." },
+        { who: "You", txt: "and Reut sent me a video to watch later &nbsp;<span class='hint'>[link]</span>" },
+        { who: "It", txt: "Saved to <a class='phlink' title='example — links to read-later'>read-later ↗</a>. It looks related to bp-tracker — want it on that project instead? Otherwise it just sits in general." }
       ],
-      get: "<b>You get:</b> the stray thought filed correctly and out of your head — and, <em>when it's relevant</em>, a note of what you were doing when it surfaced, so the thread isn't lost. You don't stop what you're doing.",
-      under: "<code>/capture</code> classifies and routes: dated reminder → <code>meta/NOW.md</code> · link → <code>02_clippings/</code> · task/idea → today's note · person → <code>05_entities/</code>. When the origin matters (it came up during a project) it adds a reference back to that work; when it doesn't, it just files it — it won't force context that isn't there. Plain words work as well as the command." },
+      get: "<b>You get:</b> everything out of your head and into the right place — a note, a calendar entry, a task, a saved link — <b>while you keep working</b>. It fans out in the background; you're never dragged off what you're doing.",
+      note: "One capture can touch several places at once — your <b>journal</b>, your <b>calendar</b>, your <b>task list</b>. A stray link with no home lands in a general <em>read-later</em> unless it clearly belongs to a project, in which case it offers to file it there.",
+      under: "<code>/capture</code> classifies and routes: dated reminder → <code>meta/NOW.md</code> (plus your Google Calendar and a TaskNote, once Reut wires those in) · link → <code>02_clippings/</code> or the right project · task/idea → today's note · person → <code>05_entities/</code>. It references what you were doing only when that matters. Plain words work as well as the command — the whole point is you never stop to file anything yourself." },
 
     { kind: "why", tab: "Why · it's yours",
       title: "Why it lives in your own files",
@@ -440,7 +464,8 @@
         { who: "It", txt: "Set up: tracking note at <code>03_projects/bp-tracker/</code>, code repo at <code>~/code/bp-tracker/</code> (git-ready), on the shared venv. Ready when you are." }
       ],
       get: "<b>You get:</b> a tracked project and a real git repo, ready to code — no scaffolding by hand. It talks the design through with you first.",
-      under: "The design chat is just conversation (no command). <code>/project-new</code> makes <code>03_projects/&lt;slug&gt;/_INDEX.md</code> and <code>~/code/&lt;slug&gt;/</code> with <code>git init</code> on the shared <code>~/code/.venv</code>. No GitHub remote or per-project venv is created. Code lives outside the vault." },
+      note: "Two homes, kept in sync. The <b>project note</b> (<code>03_projects/bp-tracker/</code>) holds the <b>why and the process</b> — your to-dos, research, random thoughts, and the refreshers that get you back up to speed if you return months later. The <b>code repo</b> (<code>~/code/bp-tracker/</code>) holds the <b>actual code</b> — the part you'd push to a public GitHub. The project remembers; the repo builds.",
+      under: "The design chat is just conversation (no command). <code>/project-new</code> makes <code>03_projects/&lt;slug&gt;/_INDEX.md</code> and <code>~/code/&lt;slug&gt;/</code> with <code>git init</code> on the shared <code>~/code/.venv</code>. No GitHub remote or per-project venv is created. Code lives outside the vault; the two stay paired by name." },
 
     { tab: "Memory", goal: "You ask about something — and it's been here before", title: "It remembers across sessions",
       groups: ["slog","journal","now"],
@@ -568,7 +593,7 @@
       h += "</ul>";
     }
     if (s.get) h += "<div class='get'>" + s.get + "</div>";
-    if (s.note) h += "<div class='" + (kind === "claude" ? "ccnote" : "whynote") + "'>" + s.note + "</div>";
+    if (s.note) h += "<div class='" + (kind === "claude" ? "ccnote" : (kind === "why" ? "whynote" : "infonote")) + "'>" + s.note + "</div>";
     if (s.under) h += "<details class='wonder'><summary>The command &amp; the files behind it</summary><div class='ans'>" + s.under + "</div></details>";
     card.className = "card kind-" + kind;
     card.innerHTML = h;
