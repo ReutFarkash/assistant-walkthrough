@@ -290,6 +290,8 @@
             <div class="node n-ext" data-g="x-code" style="left:792px; top:274px; width:304px; height:58px;"><h4>~/code/&lt;slug&gt;/</h4><p>your actual code lives here</p></div>
             <div class="node n-ext" data-g="x-obs" style="left:792px; top:348px; width:304px; height:46px;"><h4>Obsidian</h4><p>to read the notes</p></div>
             <div class="node n-ext" data-g="x-hook" style="left:792px; top:410px; width:304px; height:46px;"><h4>auto-save</h4><p>background · ~every 15 min</p></div>
+            <div class="node n-ext" data-g="x-gws" style="left:792px; top:466px; width:304px; height:48px;"><h4>Google Workspace</h4><p>mail · calendar · docs · being set up</p></div>
+            <div class="node n-ext" data-g="x-fire" style="left:792px; top:522px; width:304px; height:48px;"><h4>Firecrawl</h4><p>live web pages · being set up</p></div>
 
             <div class="zone" style="left:24px; top:606px; width:1092px; height:92px;"><span class="zlabel">Claude Code — the tool it all runs in</span></div>
             <div class="node n-tool" data-g="cc-model" style="left:42px; top:632px; width:158px; height:52px;"><h4>/model</h4><p>Sonnet · Opus · Haiku · Fable</p></div>
@@ -377,6 +379,8 @@
     <div class="crow"><div class="lbl">Context Mode <span class="tag">big jobs</span></div><div class="b">
       <p>A sandbox for <b>heavy lifting</b>. When there's a lot to chew through (long logs, big files, piles of data), it works off to the side and brings back just the answer — keeping your conversation clean. You have this; it mostly runs on its own.</p>
       <details class="d"><summary>when it kicks in</summary><div class="in">Automatic for large outputs — you don't invoke it. The upshot: big analysis jobs don't fill up your context or slow the chat down.</div></details></div></div>
+    <div class="crow"><div class="lbl">Google Workspace <span class="tag">email · cal</span></div><div class="b">
+      <p>Your <b>mail, calendar, and documents</b> — draft a reply, check your week, add a calendar event, pull in a doc. Reut wires this in on a separate account.</p></div></div>
     <div class="crow"><div class="lbl">A few more</div><div class="b">
       <table class="mt">
         <tr><td class="k">Show a picture</td><td>paste/drop a screenshot or photo and ask about it — it can see images.</td></tr>
@@ -402,7 +406,7 @@
 (function () {
   var ALLG = ["cc","s-session","s-capture","s-proj","s-ent","s-nb","s-meta",
               "journal","now","slog","inbox","clip","proj","ent","logs",
-              "x-nb","x-git","x-code","x-obs","x-hook",
+              "x-nb","x-git","x-code","x-obs","x-hook","x-gws","x-fire",
               "cc-model","cc-modes","cc-context","cc-limits","cc-agents","cc-handover"];
   var TOOLG = ["cc","cc-model","cc-modes","cc-context","cc-limits","cc-agents","cc-handover"];
   // importance ranking, shown on the tabs + a per-page chip
@@ -410,7 +414,9 @@
     "Map":"opt", "Daily":"must", "Capture":"must", "Why · it's yours":"opt",
     "Research":"must", "Live facts":"good", "Build":"must", "Memory":"good",
     "Why · vs chatbot":"opt", "Recap":"good", "Help":"good",
-    "The tool":"opt", "Model":"good", "Context":"good", "Handover":"good", "Done":"opt"
+    "The tool":"opt", "Model":"good", "Modes":"opt", "Context":"good", "Limits":"good",
+    "Handover":"good", "Subagents":"opt", "Workflows":"opt", "Context Mode":"opt",
+    "Web":"opt", "Email/cal":"opt", "More":"opt", "Done":"opt"
   };
   var RANK_LABEL = { must:"★ must-read", good:"◐ good to know", opt:"○ optional" };
   function rankOf(s) { return RANK[s.tab] || "good"; }
@@ -528,23 +534,63 @@
 
     { kind: "claude", tab: "The tool", groups: TOOLG,
       title: "One layer down: Claude Code itself",
-      lead: "Everything so far was <strong>your assistant's commands</strong>. They run inside a tool — <strong>Claude Code</strong> — and the next three screens cover the few things about the tool worth knowing: which <strong>model</strong> to use, keeping an eye on <strong>context &amp; limits</strong>, and <strong>handing off</strong> to continue later.",
-      note: "These three are the essentials. The <strong>full reference</strong> — every model, the limits, subagents, workflows, the lot — lives in <a class='golink' data-goto='cheat'>⚙ Running it</a>, to dip into whenever. It's all the bottom band of <a class='golink' data-goto='map'>🗺 the map</a>." },
+      lead: "Everything so far was <strong>your assistant's commands</strong>. They run inside a tool — <strong>Claude Code</strong> — and the next screens cover the tool itself, one topic each: the model, how careful it is, context, limits, handing off, and the power tools. <strong>None are a must to start.</strong>",
+      note: "Page through them, or jump via the tabs. Want it all on one page (to scan or print)? <a class='golink' data-goto='cheat'>⚙ Running it</a> has the lot. It's the bottom band of <a class='golink' data-goto='map'>🗺 the map</a>." },
 
     { kind: "claude", tab: "Model", groups: ["cc","cc-model"],
       title: "Pick the right model",
       lead: "Type <code>/model</code> to switch which brain it uses. <strong>Sonnet</strong> is the default and handles about 95% of things — stay there. Reach for <strong>Opus</strong> when it's stuck on something genuinely hard; drop to <strong>Haiku</strong> for quick, light stuff; <strong>Fable</strong> only for the very hardest long jobs.",
       note: "The catch: the heavier the model, the faster it uses up your limit — so switch up only when you need to, then back down. Every model, spelled out, in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
 
-    { kind: "claude", tab: "Context", groups: ["cc","cc-context","cc-limits"],
-      title: "Keep an eye on context &amp; limits",
-      lead: "Each session has a memory (its <strong>context</strong>), and your Pro plan has <strong>usage limits</strong> — a rolling 5-hour window and a weekly one. Your status line shows both: the model, and how much room is left.",
-      note: "When context fills, quality dips — <code>/clear</code> to start fresh between unrelated tasks (your notes are saved regardless, so nothing's lost). <code>/usage</code> shows where you stand. More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+    { kind: "claude", tab: "Modes", groups: ["cc","cc-modes"],
+      title: "How careful it is",
+      lead: "Press <kbd>Shift</kbd>+<kbd>Tab</kbd> to cycle how much it asks before acting: <strong>Normal</strong> (asks before changing files — the safe default), <strong>Auto-accept</strong> (stops asking, just makes the edits), <strong>Plan-first</strong> (lays out a plan and waits for your OK).",
+      note: "Start in Normal; use Plan-first for bigger tasks, Auto-accept once you trust it. All on one page in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "Context", groups: ["cc","cc-context"],
+      title: "Keep an eye on the context",
+      lead: "Each session has a memory — its <strong>context</strong>. When it fills up, quality dips. Your status line shows the model and how much room is left.",
+      note: "<code>/context</code> to check, <code>/compact</code> to squeeze it, <code>/clear</code> to start fresh between unrelated tasks (your notes are saved regardless, so nothing's lost). More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "Limits", groups: ["cc","cc-limits"],
+      title: "Your usage limits",
+      lead: "Your Pro plan has two windows — a rolling <strong>5-hour</strong> one and a <strong>weekly</strong> one. Type <code>/usage</code> to see where you stand. Heavier models eat them faster (Opus ~1.7×, Fable ~3.3× Sonnet).",
+      note: "If you run out: wait for the reset, or switch to a lighter model. Staying on Sonnet is the easiest way not to hit them. More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
 
     { kind: "claude", tab: "Handover", groups: ["cc","cc-handover"],
       title: "Hand off to continue later",
       lead: "Stopping mid-task, or the context filling up? Have it write a <strong>handover</strong> — a short note of where things stand and what's next — and a fresh session picks up cleanly. (<code>/park</code> is a lighter version.)",
       note: "The handover is just a note in your vault, so it survives a fresh start or a new day: say \"write a handover before we stop,\" then next time \"read the handover and continue.\" More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "Subagents", groups: ["cc","cc-agents"],
+      title: "Send off a helper",
+      lead: "For a big or side task, it can send off a <strong>helper agent</strong> (a subagent) that works separately and brings back just the answer — keeping your main conversation clean. Just ask: <span class='hint'>\"look into this in the background.\"</span>",
+      note: "You don't set it up; it decides when a helper is worth it. More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "Workflows", groups: ["cc","cc-agents"],
+      title: "Many helpers at once",
+      lead: "For a large job it can run <strong>many agents at once</strong> in a structured way, then pull the results together. Powerful — and heavy on your usage — so it's opt-in: ask for it when you have something genuinely big.",
+      note: "Not for everyday use. Detail in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "Context Mode",
+      title: "A sandbox for big jobs",
+      lead: "<strong>Context Mode</strong> handles heavy lifting — long logs, big files, piles of data — off to the side, and brings back just the answer so it doesn't clog your conversation. You have this; it mostly runs on its own.",
+      note: "Automatic for large outputs — you don't invoke it. More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "Web", groups: ["x-fire"],
+      title: "Reading live web pages",
+      lead: "<strong>Firecrawl</strong> lets it pull in a <strong>live web page</strong> — hand it a link and it reads that page's current contents in cleanly, more than a plain URL gives you. Good for up-to-date info from a specific site.",
+      note: "Reut is setting this up. (For open-ended \"search the web,\" that's the separate Perplexity integration — see the <em>Live facts</em> tab.) More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "Email/cal", groups: ["x-gws"],
+      title: "Your email, calendar &amp; documents",
+      lead: "<strong>Google Workspace</strong> wires in your <strong>mail, calendar, and docs</strong> — so it can draft a reply, check your week, put an event on your calendar (that's what makes the <em>Capture</em> example's calendar entry work), or pull a document into your notes.",
+      note: "Reut sets this up on a separate account. Once it's in, capture and daily-open can reach into your real schedule. More in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
+
+    { kind: "claude", tab: "More",
+      title: "A few more handy things",
+      lead: "Worth knowing they exist: <strong>show it a picture</strong> (paste a screenshot), <strong>point at a file</strong> with <code>@</code>, <code>/resume</code> an earlier session, press <kbd>Esc</kbd> twice to <strong>rewind</strong>, and remember the <code>/commands</code> are just editable text files you can change.",
+      note: "The full list, on one page, is in <a class='golink' data-goto='cheat'>⚙ Running it</a>." },
 
     { tab: "Done", title: "That's the whole thing",
       lead: "Every screen was the same shape: <strong>say what you want → it does it → it's saved.</strong> You don't need to remember a single command — ask it, or open <a class='golink' data-goto='ref'>📖 All commands</a>. For the tool itself, there's <a class='golink' data-goto='cheat'>⚙ Running it</a>. The only habit worth keeping: <code>/daily-open</code> to start the day, <code>/session-end</code> to close it." }
