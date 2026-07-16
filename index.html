@@ -109,6 +109,9 @@
   .n-folder h4 { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:12.5px; color:var(--data); }
   .n-ext { background:var(--ext-bg); border-color:var(--ext); border-style:dashed; }
   .n-ext h4 { font-size:13px; color:var(--ext); }
+  .n-tool { background:var(--accent-bg); border-color:var(--accent); }
+  .n-tool h4 { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:12px; color:var(--accent); }
+  .n-tool p { font-size:11px; }
   .zone { position:absolute; border:1.4px solid var(--line); border-radius:12px; background:color-mix(in srgb, var(--surface) 60%, transparent); }
   .zone > .zlabel { position:absolute; top:-10px; left:16px; background:var(--surface); padding:0 10px; font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
 
@@ -163,6 +166,28 @@
   .tag.adv { border-color:var(--accent); color:var(--accent); }
   .callout { border-left:3px solid var(--warn); background:var(--warn-bg); border-radius:0 8px 8px 0; padding:9px 14px; font-size:14.5px; margin:8px 0 0; }
 
+  /* three content kinds: do (green) · why (indigo) · the tool (blue) */
+  .eyebrow-why { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--data); margin:0 0 4px; }
+  .eyebrow-cc { font-family:"SF Mono",ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin:0 0 4px; }
+  .kindnote { font-size:12.5px; color:var(--muted); font-style:italic; margin:0 0 10px; }
+  .pts { list-style:none; margin:8px 0 0; padding:0; max-width:66ch; }
+  .pts li { position:relative; padding:5px 0 5px 24px; font-size:15.5px; color:var(--ink); }
+  .pts li::before { content:"✦"; position:absolute; left:0; top:5px; color:var(--data); }
+  .kind-claude .pts li::before { content:"›"; color:var(--accent); font-weight:700; }
+  .whynote { margin-top:14px; max-width:66ch; font-size:14.5px; color:var(--muted); border-left:3px solid var(--data); background:color-mix(in srgb, var(--data-bg) 55%, transparent); padding:10px 0 10px 14px; border-radius:0 8px 8px 0; }
+  .ccnote { margin-top:14px; max-width:66ch; font-size:15px; color:var(--ink); border-left:3px solid var(--accent); background:var(--accent-bg); padding:10px 0 10px 14px; border-radius:0 8px 8px 0; }
+  .card.kind-why h2, .card.kind-claude h2 { max-width:60ch; }
+  /* TOC colour-coded by kind */
+  .toc button.on { background:var(--ext); border-color:var(--ext); color:#fff; }
+  .toc button.k-why { color:var(--data); }
+  .toc button.k-why:hover { border-color:var(--data); color:var(--data); }
+  .toc button.k-why.on { background:var(--data); border-color:var(--data); color:#fff; }
+  .toc button.k-cc { color:var(--accent); }
+  .toc button.k-cc:hover { border-color:var(--accent); color:var(--accent); }
+  .toc button.k-cc.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .golink { color:var(--accent); font-weight:700; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+  .golink:hover { opacity:.8; }
+
   footer { margin-top:30px; color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
   a { color:var(--accent); }
   .hidden { display:none !important; }
@@ -183,7 +208,6 @@
       <p class="sub">Each screen: something you want to do, how you ask, and what you get. The command, the plumbing, and a map of what it touched are all optional — one click down. Jump to any part below.</p>
     </header>
     <div class="headbtns">
-      <button class="toggle" id="whyBtn" type="button">✦ Why this</button>
       <button class="toggle" id="cheatBtn" type="button">⚙ Running it</button>
       <button class="toggle" id="mapBtn" type="button">🗺 The map</button>
       <button class="toggle" id="refBtn" type="button">📖 All commands</button>
@@ -207,8 +231,8 @@
       <details class="mapwrap" id="mapWrap">
         <summary><span id="mapSummary">Where this happens on the map</span></summary>
         <div class="scroller">
-          <div class="arch" style="height:600px;">
-            <svg viewBox="0 0 1140 600" width="1140" height="600" aria-hidden="true">
+          <div class="arch" style="height:712px;">
+            <svg viewBox="0 0 1140 712" width="1140" height="712" aria-hidden="true">
               <defs>
                 <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                   <path d="M0,0 L8,4 L0,8 z" fill="var(--edge)"/>
@@ -244,40 +268,18 @@
             <div class="node n-ext" data-g="x-code" style="left:792px; top:274px; width:304px; height:58px;"><h4>~/code/&lt;slug&gt;/</h4><p>your actual code lives here</p></div>
             <div class="node n-ext" data-g="x-obs" style="left:792px; top:348px; width:304px; height:46px;"><h4>Obsidian</h4><p>to read the notes</p></div>
             <div class="node n-ext" data-g="x-hook" style="left:792px; top:410px; width:304px; height:46px;"><h4>auto-save</h4><p>background · ~every 15 min</p></div>
+
+            <div class="zone" style="left:24px; top:606px; width:1092px; height:92px;"><span class="zlabel">Claude Code — the tool it all runs in</span></div>
+            <div class="node n-tool" data-g="cc-model" style="left:42px; top:632px; width:158px; height:52px;"><h4>/model</h4><p>Sonnet · Opus · Haiku · Fable</p></div>
+            <div class="node n-tool" data-g="cc-modes" style="left:216px; top:632px; width:158px; height:52px;"><h4>Shift+Tab</h4><p>how careful it is</p></div>
+            <div class="node n-tool" data-g="cc-context" style="left:390px; top:632px; width:158px; height:52px;"><h4>/context</h4><p>memory left</p></div>
+            <div class="node n-tool" data-g="cc-limits" style="left:564px; top:632px; width:158px; height:52px;"><h4>/usage</h4><p>5h · weekly limits</p></div>
+            <div class="node n-tool" data-g="cc-agents" style="left:738px; top:632px; width:158px; height:52px;"><h4>subagents · workflows</h4><p>send off helpers</p></div>
+            <div class="node n-tool" data-g="cc-handover" style="left:912px; top:632px; width:158px; height:52px;"><h4>handover</h4><p>stop &amp; continue later</p></div>
           </div>
         </div>
       </details>
     </div>
-  </div>
-
-  <!-- OFF-PATH: why this -->
-  <div id="why" class="hidden">
-    <div class="panelhead">
-      <h2>Why this, and not just ChatGPT or Claude out of the box</h2>
-      <button class="toggle backbtn" type="button">← Back</button>
-    </div>
-    <p class="why-intro">Claude Code on its own is a coding assistant. Perplexity and ChatGPT give good answers and then forget you the moment you close the tab. This is built to do the things those <em>can't</em> — because it has a memory, and it's yours.</p>
-
-    <div class="tierhead">What it does that a chatbot can't — working now</div>
-    <div class="feats">
-      <div class="feat"><h4>A memory that's actually yours <span class="badge live">live</span></h4><p>Everything it does is written to <b>your own files</b> — a second brain that <b>accumulates</b>. A chatbot's memory ends with the conversation; here, every note, decision, and person stays and compounds.</p></div>
-      <div class="feat"><h4>It knows you, and your history <span class="badge live">live</span></h4><p>It holds a picture of <b>you</b> and what you've been doing over weeks and months — so it can connect today to something from a month ago, chase a loose end you forgot, or remind you that you owe someone a reply.</p></div>
-      <div class="feat"><h4>A flight recorder of your work <span class="badge live">live</span></h4><p>Every session is logged with typed entries. The story of what you did and <b>why</b> is recoverable — so it can recall past research or spot a recurring problem, cold, weeks later.</p></div>
-      <div class="feat"><h4>Research you can trace <span class="badge live">live</span></h4><p>NotebookLM reads whole documents and hands back a <b>sourced</b> summary saved into your vault — not a black-box answer you can't check or keep.</p></div>
-      <div class="feat"><h4>A heavy-lifting sandbox <span class="badge live">live</span></h4><p>Context Mode crunches large outputs (logs, big files, data) off to the side and brings back only the answer — so big jobs don't clog the conversation.</p></div>
-      <div class="feat"><h4>Plain files, under git — you own it <span class="badge live">live</span></h4><p>Not trapped in a vendor's cloud. Everything is portable markdown, <b>versioned and private</b>, on your own machine. Leave any time, take it all with you.</p></div>
-      <div class="feat"><h4>Shaped to you, and editable <span class="badge live">live</span></h4><p>The commands and its picture of you are just text you can change. It's tuned to <b>how you work</b> — not a generic assistant everyone gets.</p></div>
-    </div>
-
-    <div class="tierhead">More sources it can plug into — Reut wires these in over time</div>
-    <div class="feats">
-      <div class="feat"><h4>Open web search <span class="badge soon">being set up</span></h4><p>A Perplexity call, wired right into your workspace — so "what's the latest on…" lives here too, instead of a separate app. Reut is setting this up.</p></div>
-      <div class="feat"><h4>Your Google Workspace <span class="badge soon">being set up</span></h4><p>Mail, calendar, and docs (<code>gws</code>) — so it can draft a reply, check your week, or pull a document into your notes. On a separate account.</p></div>
-    </div>
-
-    <p class="vs">And it's <strong>not</strong> better at everything — this stuff moves fast. For a quick, up-to-the-minute lookup (a live price, today's news, a flight fare) a browser or a dedicated search tool may beat it today. It earns its place on <strong>memory, depth, and keeping your work</strong> — and what it reaches keeps growing.</p>
-
-    <div class="why-kicker">The short version: a chatbot answers a question and forgets it. <strong>This one builds a working memory of your life and gets more useful the longer you use it.</strong></div>
   </div>
 
   <!-- OFF-PATH: running it (cheat sheet) -->
@@ -370,7 +372,9 @@
 (function () {
   var ALLG = ["cc","s-session","s-capture","s-proj","s-ent","s-nb","s-meta",
               "journal","now","slog","inbox","clip","proj","ent","logs",
-              "x-nb","x-git","x-code","x-obs","x-hook"];
+              "x-nb","x-git","x-code","x-obs","x-hook",
+              "cc-model","cc-modes","cc-context","cc-limits","cc-agents","cc-handover"];
+  var TOOLG = ["cc","cc-model","cc-modes","cc-context","cc-limits","cc-agents","cc-handover"];
 
   var steps = [
     { arch: true, tab: "Map", title: "The shape — a look, then forget it",
@@ -396,6 +400,16 @@
       ],
       get: "<b>You get:</b> the stray thought filed correctly and out of your head — and, <em>when it's relevant</em>, a note of what you were doing when it surfaced, so the thread isn't lost. You don't stop what you're doing.",
       under: "<code>/capture</code> classifies and routes: dated reminder → <code>meta/NOW.md</code> · link → <code>02_clippings/</code> · task/idea → today's note · person → <code>05_entities/</code>. When the origin matters (it came up during a project) it adds a reference back to that work; when it doesn't, it just files it — it won't force context that isn't there. Plain words work as well as the command." },
+
+    { kind: "why", tab: "Why · it's yours",
+      title: "Why it lives in your own files",
+      lead: "Everything it does is written to <strong>plain files on your computer, in version control</strong> — not locked inside an app. That's the quiet difference from a chatbot: it <strong>accumulates</strong>. Everything you capture stays, and builds into a memory that's genuinely yours.",
+      points: [
+        "You own it — portable, private, backed up, yours to walk away with any time.",
+        "It compounds — the more you use it, the more it knows.",
+        "Nothing evaporates when you close the window."
+      ],
+      note: "See it on <a class='golink' data-goto='map'>🗺 the map</a> — the middle column, <code>your files</code>." },
 
     { tab: "Research", goal: "You want to really understand something before deciding", title: "Research you'll actually keep",
       groups: ["s-nb","x-nb","journal","clip"],
@@ -439,6 +453,16 @@
       get: "<b>You get:</b> continuity. Because it keeps a running record of your sessions (the <em>flight recorder</em>), it can recall past work, notice a recurring problem, and tie today to something from weeks ago — instead of starting blank every time.",
       under: "Every session is logged to <code>meta/SESSION_LOG.md</code> with typed entries, and your notes persist as files. So \"have I done this before?\" and \"is this error recurring?\" are answerable — by you or by it, cold, later. This is the thing a fresh chatbot window can't do." },
 
+    { kind: "why", tab: "Why · vs chatbot",
+      title: "Why this, and not just ChatGPT",
+      lead: "A chatbot answers a question and forgets you the moment you close the tab. This keeps a <strong>working memory of your life</strong> — it knows your history, recalls past work, notices a recurring problem, and ties today to something from weeks ago.",
+      points: [
+        "It knows <b>you</b> and what you've been doing over time.",
+        "Research comes back <b>sourced and saved</b>, not a black box.",
+        "It gets <b>more useful the longer</b> you use it."
+      ],
+      note: "It isn't better at everything — for a quick live fact, a browser or Perplexity wins today (see the <em>Live facts</em> tab). It earns its place on memory, depth, and keeping your work." },
+
     { tab: "Recap", goal: "You come back to a project after weeks", title: "Pick up exactly where you left off",
       groups: ["s-proj","proj","slog"],
       dialogue: [
@@ -459,8 +483,13 @@
       get: "<b>You get:</b> a way forward that never requires digging — ask in plain words, or flag Reut privately.",
       under: "<code>/incident</code> writes <code>06_logs/incidents/…md</code> + a line in <code>meta/_REUT_LOG.md</code>, scrubbed of personal content, shown to you before it's sent. Commands are editable markdown in <code>_utils/_skills/</code> if you ever want to change one." },
 
+    { kind: "claude", tab: "The tool", groups: TOOLG,
+      title: "One layer down: Claude Code itself",
+      lead: "Everything so far was <strong>your assistant's commands</strong>. They run inside a tool — <strong>Claude Code</strong> — and a few things about the tool itself are worth a glance: which <strong>model</strong> to use, keeping an eye on <strong>context</strong> and <strong>usage limits</strong>, and <strong>handing off</strong> to continue later.",
+      note: "This is a different kind of thing from your commands, so it has its own page. Open <a class='golink' data-goto='cheat'>⚙ Running it</a> for the must-knows (you don't need it to start) — or find these on <a class='golink' data-goto='map'>🗺 the map</a>, the bottom band." },
+
     { tab: "Done", title: "That's the whole thing",
-      lead: "Every screen was the same shape: <strong>say what you want → it does it → it's saved.</strong> You don't need to remember a single command — ask it, or open <b>📖 All commands</b>. Two more tabs up top: <b>⚙ Running it</b> (models, limits, handovers) and <b>✦ Why this</b>. The only habit worth keeping: <code>/daily-open</code> to start the day, <code>/session-end</code> to close it." }
+      lead: "Every screen was the same shape: <strong>say what you want → it does it → it's saved.</strong> You don't need to remember a single command — ask it, or open <a class='golink' data-goto='ref'>📖 All commands</a>. For the tool itself, there's <a class='golink' data-goto='cheat'>⚙ Running it</a>. The only habit worth keeping: <code>/daily-open</code> to start the day, <code>/session-end</code> to close it." }
   ];
 
   var refGroups = [
@@ -505,6 +534,8 @@
   steps.forEach(function (s, i) {
     var b = document.createElement("button");
     b.type = "button"; b.textContent = s.tab || ("Step " + (i + 1));
+    if (s.kind === "why") b.classList.add("k-why");
+    else if (s.kind === "claude") b.classList.add("k-cc");
     b.addEventListener("click", function () { go(i); });
     tocBox.appendChild(b);
   });
@@ -523,13 +554,23 @@
   function go(i) {
     idx = Math.max(0, Math.min(steps.length - 1, i));
     var s = steps[idx];
+    var kind = s.kind || (s.goal ? "workflow" : "plain");
     var h = "";
-    if (s.goal) h += "<p class='goal'>You want to · " + s.goal + "</p>";
+    if (kind === "why") h += "<p class='eyebrow-why'>✦ Why it's worth it — background, not a how-to</p>";
+    else if (kind === "claude") h += "<p class='eyebrow-cc'>⚙ Claude Code — the tool it runs in</p>";
+    else if (s.goal) h += "<p class='goal'>You want to · " + s.goal + "</p>";
     h += "<h2>" + s.title + "</h2>";
     if (s.lead) h += "<p class='lead'>" + s.lead + "</p>";
     h += dialogueHTML(s.dialogue);
+    if (s.points && s.points.length) {
+      h += "<ul class='pts'>";
+      s.points.forEach(function (p) { h += "<li>" + p + "</li>"; });
+      h += "</ul>";
+    }
     if (s.get) h += "<div class='get'>" + s.get + "</div>";
+    if (s.note) h += "<div class='" + (kind === "claude" ? "ccnote" : "whynote") + "'>" + s.note + "</div>";
     if (s.under) h += "<details class='wonder'><summary>The command &amp; the files behind it</summary><div class='ans'>" + s.under + "</div></details>";
+    card.className = "card kind-" + kind;
     card.innerHTML = h;
 
     // sticky "details" open state
@@ -577,21 +618,31 @@
 
   var guided = document.getElementById("guided");
   var reference = document.getElementById("reference");
-  var why = document.getElementById("why");
   var cheat = document.getElementById("cheat");
   function show(view) {
     guided.classList.toggle("hidden", view !== "guided");
     reference.classList.toggle("hidden", view !== "ref");
-    why.classList.toggle("hidden", view !== "why");
     cheat.classList.toggle("hidden", view !== "cheat");
     window.scrollTo(0, 0);
   }
+  function openMap() {
+    ui.mapTouched = true; ui.map = true;
+    if (steps[idx].groups && steps[idx].groups.length) { mapWrap.open = true; stage.scrollIntoView({ behavior: "smooth" }); }
+    else { show("guided"); go(0); mapWrap.open = true; }
+  }
   document.getElementById("mapBtn").addEventListener("click", function () { show("guided"); ui.mapTouched = true; ui.map = true; go(0); });
   document.getElementById("refBtn").addEventListener("click", function () { show("ref"); });
-  document.getElementById("whyBtn").addEventListener("click", function () { show("why"); });
   document.getElementById("cheatBtn").addEventListener("click", function () { show("cheat"); });
   document.addEventListener("click", function (e) {
-    if (e.target && e.target.classList && e.target.classList.contains("backbtn")) show("guided");
+    var t = e.target;
+    if (!t) return;
+    if (t.classList && t.classList.contains("backbtn")) { show("guided"); return; }
+    if (t.dataset && t.dataset.goto) {
+      e.preventDefault();
+      var g = t.dataset.goto;
+      if (g === "map") openMap();
+      else show(g);   // "cheat" or "ref"
+    }
   });
   document.addEventListener("keydown", function (e) {
     if (!guided.classList.contains("hidden")) {
